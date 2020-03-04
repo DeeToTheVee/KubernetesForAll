@@ -11,7 +11,7 @@
     datastore: ssd
     name: "{{item}}"
     power_on: yes
-    ovf: /media/deetothevee/Storage/Projects/kubernetes/ansible_kubeadm/roles/instances/files/CentOS7.ovf
+    ovf: "{{VM_OVF_PATH}}/CentOS7.ovf"
     wait_for_ip_address: yes
   delegate_to: localhost
   with_items:
