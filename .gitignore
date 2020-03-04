@@ -1,0 +1,12 @@
+.idea/
+generated_files/
+
+*.csr
+*.pem
+*.key
+group_vars/all/main.yml
+hosts.yml
+ansible.cfg
+bin
+include
+lib
