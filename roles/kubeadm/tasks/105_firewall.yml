@@ -1,0 +1,29 @@
+---
+
+- name: "[Firewall]: Enable firewall rules for controllers"
+  firewalld:
+    port: "{{item}}"
+    permanent: yes
+    state: enabled
+    zone: public
+  with_items:
+    - 6443/tcp
+    - 2379-2380/tcp
+    - 10250-10252/tcp
+  when: node_type|default("skip") == "controller" or initialise_kubeadm == true
+
+- name: "[Firewall]: Enable firewall rules for workers"
+  firewalld:
+    port: "{{item}}"
+    permanent: yes
+    state: enabled
+    zone: public
+  with_items:
+    - 10250/tcp
+    - 30000-32767/tcp
+  when: node_type|default("skip") == "worker"
+
+- name: "[Firewall]: Restart firewall"
+  systemd:
+    name: firewalld
+    state: restarted

@@ -1,0 +1,8 @@
+---
+
+- name: "[LocalTasks - Ansible Node]: Install packages required for Ansible host to interact with hosts"
+  hosts: localhost
+  become: true
+  remote_user: "{{LOCAL_USER}}"
+  roles:
+    - { role: common, ansible_server: true }

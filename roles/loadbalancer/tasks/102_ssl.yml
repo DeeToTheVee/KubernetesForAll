@@ -1,0 +1,81 @@
+---
+
+#- name: Copy letsencrypt cert for LB
+#  copy:
+#    src: fullchain.pem
+#    dest: "{{playbook_dir}}/generated_files/ssl/load_balancer/{{item}}.pem"
+#    mode: '0755'
+#  with_items: "{{groups['k8s-lbs']}}"
+#  tags: create_loadbalancer
+#
+#- name: Copy letsencrypt key for LB
+#  copy:
+#    src: privkey.pem
+#    dest: "{{playbook_dir}}/generated_files/ssl/load_balancer/{{item}}-key.pem"
+#    mode: '0755'
+#  with_items: "{{groups['k8s-lbs']}}"
+#  tags: create_loadbalancer
+
+
+- name: Generate a Private Key for LB
+  openssl_privatekey:
+    path: "{{playbook_dir}}/generated_files/ssl/load_balancer/{{item}}-key.pem"
+  tags: create_loadbalancer
+
+- name: Generate a CSR for LB
+  openssl_csr:
+    path: "{{playbook_dir}}/generated_files/ssl/load_balancer/{{item}}-csr.pem"
+    privatekey_path: "{{playbook_dir}}/generated_files/ssl/load_balancer/{{item}}-key.pem"
+    common_name: "{{LOADBALANCER_FQDN}}"
+    subject_alt_name: "IP:{{LB_MASTER_ADDRESS}},IP:{{K8S_CONTROL_PLANE_LB_ADDRESS}}"
+  tags: create_loadbalancer
+
+- name: Generate a Self Signed certificate for LB
+  openssl_certificate:
+    path: "{{playbook_dir}}/generated_files/ssl/load_balancer/{{item}}.pem"
+    privatekey_path: "{{playbook_dir}}/generated_files/ssl/load_balancer/{{item}}-key.pem"
+    csr_path: "{{playbook_dir}}/generated_files/ssl/load_balancer/{{item}}-csr.pem"
+    provider: selfsigned
+  tags: create_loadbalancer
+
+- name: Touch the chain file
+  file:
+    path: "{{playbook_dir}}/generated_files/ssl/load_balancer/{{item}}-chain.pem"
+    state: touch
+    mode: '0755'
+  tags: create_loadbalancer
+#
+
+- name: Combine key and cert
+  shell: "cat {{playbook_dir}}/generated_files/ssl/load_balancer/{{item}}.pem {{playbook_dir}}/generated_files/ssl/load_balancer/{{item}}-key.pem > {{playbook_dir}}/generated_files/ssl/load_balancer/{{item}}-chain.pem"
+  tags: create_loadbalancer
+
+#Todo: Integrate this!
+#- name: Generate a Let's Encrypt Certificate
+#  openssl_certificate:
+#    path: /etc/ssl/crt/ansible.com.crt
+#    csr_path: /etc/ssl/csr/ansible.com.csr
+#    provider: acme
+#    acme_accountkey: /etc/ssl/private/ansible.com.pem
+#    acme_challenge_path: /etc/ssl/challenges/ansible.com/
+
+- name: Push cert to LB
+  shell: "curl -X POST --data-binary \"@{{playbook_dir}}/generated_files/ssl/load_balancer/k8s-controllers-lb-chain.pem\" -k https://{{LB_USER}}:{{LB_PASSWD}}@{{hostvars[item]['ansible_host']}}/access/addcert?cert=k8s_cert"
+  tags: create_loadbalancer
+
+# ToDo: One day this will work instead
+#- name: Push cert to LB
+#  uri:
+#    url: "https://{{LB_USER}}:{{LB_PASSWD}}@{{hostvars[item]['ansible_host']}}/access/addcert?cert=k8s_cert"
+#    method: POST
+#    validate_certs: no
+#    src: "{{playbook_dir}}/generated_files/ssl/load_balancer/{{item}}-chain.pem"
+#  with_items: "{{groups['k8s-lbs']}}"
+#  tags: create_loadbalancer
+
+#- name: Add ssl accelleration to k8s-https pool
+#  uri:
+#    url: "https://{{LB_USER}}:{{LB_PASSWD}}@{{hostvars[item]['ansible_host']}}/access/modvs?vs={{K8S_CONTROL_PLANE_LB_ADDRESS}}&port=443&prot=tcp&SSLAcceleration=1&CertFile=k8s_cert&CipherSet=BestPractices"
+#    method: GET
+#    validate_certs: no
+#  tags: create_loadbalancer

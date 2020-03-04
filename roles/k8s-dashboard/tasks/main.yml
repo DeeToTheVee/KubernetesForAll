@@ -1,0 +1,64 @@
+---
+
+- name: Check for existing kubernetes-dashboard-certs in namespaces
+  k8s_info:
+    kubeconfig: "/home/{{BECOME_USER}}/.kube/config"
+    api_version: v1
+    kind: Secret
+    name: kubernetes-dashboard-certs
+    namespace: kube-system
+  register: dash_secrets_list
+  tags:
+    - deploy_kube_dashboard
+
+- name: Set secrets facts
+  set_fact:
+    known_dash_secrets_list: "{{dash_secrets_list}}"
+  tags:
+    - deploy_kube_dashboard
+
+- name: Add k8s-dashboard certs to kubernetes
+  shell: "kubectl create secret generic kubernetes-dashboard-certs --from-file={{K8S_BUILD_ROOT}}/k8s-dashboard/ssl -n kube-system --kubeconfig=/home/{{BECOME_USER}}/.kube/config"
+  when: item.resources|length == 0
+  with_items:
+    - "{{known_dash_secrets_list}}"
+  tags:
+    - deploy_kube_dashboard
+
+- name: Deploy Kubernetes Dashboard with LetsEncrypt
+  k8s:
+    validate_certs: no
+    kubeconfig: "/home/{{BECOME_USER}}/.kube/config"
+    state: present
+    namespace: kube-system
+    src: "{{K8S_BUILD_ROOT}}/k8s-dashboard/dashboard.yml"
+  tags:
+    - deploy_kube_dashboard
+
+- name: Generate the CLUSTER ADMIN user ClusterRoles and ClusterRoleBindings
+  template:
+    src: users.yml.j2
+    dest: "{{K8S_BUILD_ROOT}}/k8s-dashboard/users/{{item}}.yml"
+  with_items:
+    - deetothevee
+  tags:
+    - deploy_kube_dashboard
+
+- name: Deploy CLUSTER ADMIN users ClusterRoles and Bindings
+  k8s:
+    validate_certs: no
+    kubeconfig: "/home/{{BECOME_USER}}/.kube/config"
+    state: present
+    namespace: kube-system
+    src: "{{K8S_BUILD_ROOT}}/k8s-dashboard/users/{{item}}.yml"
+  with_items:
+    - deetothevee
+  tags:
+    - deploy_kube_dashboard
+
+- name: Make a note of this command for your tokens!
+  pause:
+    seconds: 5
+    prompt: "kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep USERNAME | awk '{print $1}')"
+  tags:
+    - deploy_kube_dashboard

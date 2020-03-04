@@ -1,0 +1,10 @@
+nfs_exports:
+  - "emby"
+  - "openproject/assets"
+  - "openproject/data"
+  - "gitlab/data"
+  - "nginx"
+  - "mysql"
+  - "percona"
+  - "mariadb"
+  - "cassandra"

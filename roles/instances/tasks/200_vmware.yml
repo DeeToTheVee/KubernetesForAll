@@ -1,0 +1,22 @@
+---
+
+#TODO: Needs much work! (and I don't have the enterprise version to test on)
+- name: "[Instances - VMWare]: Create a virtual machine on given ESXi hostname"
+  vmware_deploy_ovf:
+    hostname: "{{ VMWARE_HOST }}"
+    username: "{{ VMWARE_USER }}"
+    password: "{{ VMWARE_PASSWD }}"
+    validate_certs: no
+    folder: /auto_deployed
+    datastore: ssd
+    name: "{{item}}"
+    power_on: yes
+    ovf: /media/deetothevee/Storage/Projects/kubernetes/ansible_kubeadm/roles/instances/files/CentOS7.ovf
+    wait_for_ip_address: yes
+  delegate_to: localhost
+  with_items:
+    - "{{ groups['k8s-controllers'] }}"
+    - "{{ groups['k8s-workers'] }}"
+  register: deploy_vm
+  tags:
+    - testing_vmware

@@ -1,0 +1,22 @@
+---
+
+- name: "[Add Control Nodes]: Copy Control Plane Token to controller"
+  copy:
+    src: "{{KUBE_ADM_TOKEN_DIR}}/control_plane_token"
+    dest: /tmp/control_plane_token
+  tags:
+    - kubeadm_controller
+
+# If this fails it is very likely it's because of expired certs.
+# For new cert key go to active controller and run: sudo kubeadm init phase upload-certs --upload-certs
+# TODO: Needs ansible block really to do this for the user - wouldn't that be friendly and helpful?
+- name: "[Add Control Nodes]: Join controller nodes"
+  shell: "$(cat /tmp/control_plane_token)"
+  register: kubeadm_join_control_plane
+  tags:
+    - kubeadm_join_control_plane
+
+#- name: "[Init]: Waiting for Ready state"
+#  waitfor:
+#    command: "kubectl get nodes -o json | jq -Mr '[.items[] | {name: .metadata.name, status: .status.conditions[].type}]' | jq -Mr '.[] | select(.name == \"{{inventory_hostname}}\" and .status == \"Ready\")'"
+#  when: kubeadm_init

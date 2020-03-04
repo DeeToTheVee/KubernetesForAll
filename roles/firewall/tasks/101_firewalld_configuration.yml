@@ -1,0 +1,15 @@
+---
+
+- name: "[Firewall]: Create firewall Public zone"
+  firewalld:
+    source: 192.168.0.0/24
+    permanent: yes
+    state: enabled
+    zone: public
+  register: add_zone
+
+- name: "[Firewall]: Restart firewall"
+  systemd:
+    name: firewalld
+    state: restarted
+  when: add_zone

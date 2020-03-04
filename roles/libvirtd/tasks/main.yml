@@ -1,0 +1,21 @@
+---
+
+- include: 100_packages.yml
+  tags:
+    - configure_builders
+    - builder_packages
+
+- include: 101_network.yml
+  tags:
+    - configure_builders
+    - builder_networks
+
+- include: 103_storage_pools.yml
+  tags:
+    - configure_builders
+    - builder_storage
+
+- include: 104_images.yml
+  tags:
+    - configure_builders
+    - builder_images

@@ -1,0 +1,9 @@
+---
+
+- include: 100_libvirt.yml
+  when: build_instances|default("false") == "true"
+  tags: start_instances
+
+#- include: 200_vmware.yml
+#  when: build_instances|default("false") == "true"
+#  tags: start_instances

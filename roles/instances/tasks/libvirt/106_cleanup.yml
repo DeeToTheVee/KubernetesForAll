@@ -1,0 +1,29 @@
+---
+
+- name: "[libvirtd - cleanup]: Remove meta-data file"
+  file:
+    path: "/tmp/{{item}}"
+    state: absent
+
+- name: "[libvirtd - cleanup]: Detach the ISO"
+  command: "virsh change-media {{item}} sda --eject --config --live"
+  register: iso_ejected
+  ignore_errors: true
+  changed_when:
+    - '"error" in iso_ejected.stderr'
+    - iso_ejected.rc == 1
+
+- name: "[libvirtd - cleanup]: Remove the iso file"
+  file:
+    path: "{{LIBVIRT_IMAGES}}/{{item}}-cidata.iso"
+    state: absent
+
+- name: "[libvirtd - cleanup]: Remove the original disk files"
+  file:
+    path: "{{LIBVIRT_IMAGES}}/{{item}}.new.image"
+    state: absent
+
+- name: "[libvirtd - cleanup]: Remove the original disk files"
+  file:
+    path: "{{LIBVIRT_IMAGES}}/{{item}}.qcow2"
+    state: absent

@@ -1,0 +1,24 @@
+---
+
+- name: "[Istio - Fetch Istio]: Fetch Istio"
+  get_url:
+    url: "https://git.io/getLatestIstio"
+    dest: /opt/istio.sh
+    mode: '0755'
+  become: yes
+
+- name: "[Istio - Fetch Istio]: Install Istio"
+  shell: "/opt/istio.sh"
+  environment:
+    ISTIO_VERSION: "{{ISTIO_VERSION}}"
+  become: yes
+
+- name: "[Istio - Fetch Istio]: Check istio was unpacked"
+  stat:
+    path: "/opt/istio-{{ISTIO_VERSION}}"
+  register: istio_unpacked
+
+- name: "[Istio - Fetch Istio]: Move Istio into /usr/local/bin"
+  shell: "cp /opt/istio-{{ISTIO_VERSION}}/bin/istioctl /usr/local/bin/"
+  become: yes
+  when: istio_unpacked.stat.exists

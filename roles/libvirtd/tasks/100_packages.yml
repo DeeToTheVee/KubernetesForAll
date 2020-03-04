@@ -1,0 +1,65 @@
+---
+
+- name: "[Install Packages]: : Install builder packages"
+  package:
+    name: "{{packages}}"
+    state: present
+  register: package_res
+  retries: 10
+  until: package_res is success
+  vars:
+    packages:
+      - qemu-kvm
+      - libguestfs-tools
+      - python3-libvirt
+      - python3-lxml
+
+- name: "[Install Packages]: Install YUM specific packages"
+  yum:
+    name: "{{packages}}"
+    state: present
+  register: package_res
+  retries: 10
+  until: package_res is success
+  vars:
+    packages:
+      - qemu-kvm
+      - qemu-img
+      - virt-install
+      - libvirt-client
+      - libvirt
+      - libvirt-devel
+      - python3-libsemanage
+      - NetworkManager-libnm
+      - nm-connection-editor
+      - policycoreutils-python-utils
+      - cockpit-machines
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+- name: "[Install Packages]: Install APT specific packages"
+  apt:
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  register: package_res
+  retries: 10
+  until: package_res is success
+  vars:
+    packages:
+      - libvirt-dev
+      - network-manager
+      - python-dbus
+      - libnm-glib-dev
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+#- name: "[Install Packages]: Install pip packages"
+#  pip:
+#    name: python-networkmanager
+#    state: present
+
+- name: "[Install Packages]: Make sure libvirtd is enabled"
+  systemd:
+    name: libvirtd
+    state: started
+    enabled: yes
+    daemon_reload: yes

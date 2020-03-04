@@ -1,0 +1,30 @@
+---
+
+- name: "[Install Packages] - Yum update"
+  yum:
+    name: "*"
+    update_cache: yes
+    state: present
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+- name: "[Install Packages] - APT update"
+  apt:
+    name: "*"
+    update_cache: yes
+    state: present
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: "[Install Packages] - Install Packages"
+  package:
+    name: "{{packages}}"
+    state: present
+  vars:
+    packages:
+      - haproxy
+      - NetworkManager
+
+- name: "[Install Packages] - Enable NetworkManager"
+  systemd:
+    name: NetworkManager
+    enabled: yes
+    state: started

@@ -1,0 +1,8 @@
+---
+
+- name: "[LocalTasks - Instances]: Setup Instances"
+  hosts: builders
+  become: true
+  remote_user: "{{BECOME_USER}}"
+  roles:
+    - { role: instances }

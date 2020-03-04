@@ -1,0 +1,52 @@
+---
+
+- name: "[Add RBAC]: Configure tiller Service Account in namespaces"
+  k8s:
+    state: present
+    validate_certs: no
+    kubeconfig: "/home/{{LOCAL_USER}}/.kube/config"
+    definition:
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: tiller
+        namespace: "{{item}}"
+  with_items: "{{TILLER_NAMESPACES}}"
+
+- name: "[Add RBAC]: Configure tiller configmap reader Role in namespaces"
+  k8s:
+    state: present
+    validate_certs: no
+    kubeconfig: "/home/{{LOCAL_USER}}/.kube/config"
+    definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: Role
+      metadata:
+        namespace: "{{item}}"
+        name: tiller-manager
+      rules:
+        - apiGroups: ["", "batch", "extensions", "apps"]
+          resources: ["*"]
+          verbs: ["*"]
+  with_items: "{{TILLER_NAMESPACES}}"
+
+- name: "[Add RBAC]: Configure tiller config map reader RoleBinding in namespaces"
+  k8s:
+    state: present
+    validate_certs: no
+    kubeconfig: "/home/{{LOCAL_USER}}/.kube/config"
+    definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: RoleBinding
+      metadata:
+        name: tiller-binding
+        namespace: "{{item}}"
+      subjects:
+        - kind: ServiceAccount
+          name: tiller
+          namespace: "{{item}}"
+      roleRef:
+        kind: Role
+        name: tiller-manager
+        apiGroup: rbac.authorization.k8s.io
+  with_items: "{{TILLER_NAMESPACES}}"

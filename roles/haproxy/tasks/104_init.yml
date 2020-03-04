@@ -1,0 +1,23 @@
+---
+
+- name: Restart rsyslog
+  systemd:
+    name: rsyslog
+    state: restarted
+  tags:
+    - install_haproxy
+
+- name: Start HAProxy server
+  systemd:
+    name: haproxy
+    enabled: yes
+    state: restarted
+  tags:
+    - install_haproxy
+
+- name: Wait for server to start
+  wait_for:
+    host: "{{ K8S_CONTROL_PLANE_LB_ADDRESS }}"
+    port: 6443
+  tags:
+    - install_haproxy

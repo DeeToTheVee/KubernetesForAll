@@ -1,0 +1,8 @@
+---
+
+libvirt_pools:
+  - "hdd"
+  - "usb"
+  - "ssd"
+  - "iso"
+  - "templates"

@@ -1,0 +1,34 @@
+---
+
+- name: "[Storage Pools] - Get Pool facts"
+  virt_pool:
+    command: facts
+
+- name: "[Storage Pools] - Stop the default Pool"
+  virt_pool:
+    command: destroy
+    name: default
+  register: defaul_pool_stopped
+  when: '"default" in ansible_libvirt_pools and ansible_libvirt_pools["default"].state == "active"'
+
+- name: "[Storage Pools] - Undefine the  default Pool"
+  virt_pool:
+    command: undefine
+    name: default
+  when: not defaul_pool_stopped.skipped
+
+- name: "[Storage Pools] - Create Pool directories"
+  file:
+    path: "{{ LIBVIRT_IMAGES }}/{{item}}"
+    state: directory
+    recurse: yes
+    owner: qemu
+    group: qemu
+  with_items: "{{libvirt_pools}}"
+
+- name: "[Storage Pools] - Create Pools"
+  virt_pool:
+    command: define
+    name: "{{item}}"
+    xml: "{{ lookup('template', 'pool.xml.j2') }}"
+  with_items: "{{libvirt_pools}}"

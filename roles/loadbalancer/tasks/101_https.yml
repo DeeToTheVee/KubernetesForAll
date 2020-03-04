@@ -1,0 +1,41 @@
+---
+
+- name: Delete k8s-https virtual service
+  uri:
+    url: "https://{{LB_USER}}:{{LB_PASSWD}}@{{hostvars['k8s-controllers-lb']['ansible_host']}}/access/delvs?vs={{K8S_CONTROL_PLANE_LB_ADDRESS}}&port=443&prot=tcp"
+    method: GET
+    validate_certs: no
+  ignore_errors: yes
+  tags: create_loadbalancer
+
+- name: Delete current SSL on LB
+  uri:
+    url: "https://{{LB_USER}}:{{LB_PASSWD}}@{{hostvars['k8s-controllers-lb']['ansible_host']}}/access/delcert?cert=k8s_cert"
+    method: GET
+    validate_certs: no
+  ignore_errors: yes
+  tags: create_loadbalancer
+
+- name: Create k8s-https virtual service
+  uri:
+    url: "https://{{LB_USER}}:{{LB_PASSWD}}@{{hostvars['k8s-controllers-lb']['ansible_host']}}/access/addvs?vs={{K8S_CONTROL_PLANE_LB_ADDRESS}}&port=443&prot=tcp&nickname=k8s-https"
+    method: GET
+    validate_certs: no
+  tags: create_loadbalancer
+
+- name: Add real servers to k8s-https pool
+  uri:
+    url: "https://{{LB_USER}}:{{LB_PASSWD}}@{{hostvars['k8s-controllers-lb']['ansible_host']}}/access/addrs?vs={{K8S_CONTROL_PLANE_LB_ADDRESS}}&port=443&weight=1000&prot=tcp&rs={{hostvars[item]['ansible_host']}}&rsport=80"
+    method: GET
+    validate_certs: no
+  with_items:
+    - "{{groups['k8s-controllers']}}"
+  tags: create_loadbalancer
+
+
+- name: Add health checks to k8s-https pool
+  uri:
+    url: "https://{{LB_USER}}:{{LB_PASSWD}}@{{hostvars['k8s-controllers-lb']['ansible_host']}}/access/modvs?vs={{K8S_CONTROL_PLANE_LB_ADDRESS}}&port=443&prot=tcp&CheckPort=80&CheckType=http&CheckURL=/healthz&CheckHeaders=Host:kubernetes.default.svc.cluster.local&CheckUseGet=1&EnhancedHealthchecks=1&RsMinimum=1"
+    method: GET
+    validate_certs: no
+  tags: create_loadbalancer

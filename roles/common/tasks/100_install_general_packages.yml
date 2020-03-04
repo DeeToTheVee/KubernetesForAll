@@ -1,0 +1,68 @@
+---
+
+- include: 101_apt_configuration.yml
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: "[Install Packages - General]: Update all packages to the latest version"
+  apt:
+    upgrade: dist
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: "[Install Packages - General]: Install base packages"
+  package:
+    name: "{{ packages }}"
+    state: present
+  register: package_res
+  retries: 10
+  until: package_res is success
+  vars:
+    packages:
+      - wget
+      - curl
+      - vim
+      - socat
+      - ca-certificates
+#      - python3-setuptools
+#      - python3-pip
+
+- name: "[Install Packages - General]: Install YUM specific packages"
+  package:
+    name: "{{ packages }}"
+    state: present
+  register: package_res
+  retries: 10
+  until: package_res is success
+  vars:
+    packages:
+#      - python3-libselinux
+      - firewalld
+      - epel-release
+      - pkgconfig
+      - device-mapper-persistent-data
+      - lvm2
+      - python2-setuptools
+      - python2-pip
+      - conntrack-tools
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+- name: "[Install Packages - General]: Install APT specific packages"
+  package:
+    name: "{{ packages }}"
+    state: present
+  register: package_res
+  retries: 10
+  until: package_res is success
+  vars:
+    packages:
+      - aptitude
+      - apt-transport-https
+      - software-properties-common
+      - python-setuptools
+      - python-pip
+      - conntrack
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: "[Install Packages - General]: Remove dependencies that are no longer required"
+  apt:
+    autoremove: yes
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'

@@ -1,0 +1,42 @@
+---
+
+## Not working - module requires update to work with latest package naming.
+#- name: "[Networking] - Create Bridge Interface"
+#  nmcli:
+#    conn_name: "br0"
+#    ifname: "br0"
+#    type: bridge
+#    ip4: "{{ ansible_default_ipv4.address }}/24"
+#    gw4: "{{ ansible_default_ipv4.gateway }}"
+#    dns4:
+#      - 8.8.4.4
+#      - 8.8.8.8
+#    state: present
+#  register: bridge_configured
+#  when: ansible_default_ipv4.interface != "br0"
+
+#- name: "[Networking] - Create Bridge-Slave Interface"
+#nmcli:
+#  conn_name: "{{ ansible_default_ipv4.interface }}"
+#  ifname: "{{ ansible_default_ipv4.interface }}"
+#  type: bridge-slave
+#  master: "br0"
+#  state: present
+#register: bridge_slave_configured
+#when: bridge_configured and ansible_default_ipv4.interface != "br0"
+
+# Temp work around...
+- name: "[Networking] - Create Bridge Interface"
+  shell: "nmcli con add type bridge con-name br0 ifname br0 ip4 {{ ansible_default_ipv4.address }}/24 gw4 {{ ansible_default_ipv4.gateway }} ipv4.dns \"8.8.4.4 8.8.8.8\""
+  register: bridge_configured
+  when: ansible_default_ipv4.interface != "br0"
+
+- name: "[Networking] - Create Bridge Slave Interface"
+  shell: "nmcli con add type bridge-slave con-name {{ ansible_default_ipv4.interface }} ifname {{ ansible_default_ipv4.interface }} master br0"
+  register: bridge_slave_configured
+  when: bridge_configured and ansible_default_ipv4.interface != "br0"
+
+- name: "[Networking] - Reload network"
+  shell: "nmcli con down {{ ansible_default_ipv4.interface }} && nmcli con up br0"
+  register: bridge_slave_configured
+  when: bridge_configured and ansible_default_ipv4.interface != "br0"

@@ -1,0 +1,41 @@
+---
+
+- name: "[Fetch Helm]: Check if Helm exists"
+  stat:
+    path: /usr/local/bin/helm
+  register: helm_check
+
+- name: "[Fetch Helm]: Fetch Helm v2 (Unfortunately)"
+  get_url:
+    url: "https://get.helm.sh/helm-v{{HELM_VERSION}}-linux-amd64.tar.gz"
+    dest: /tmp/helm.tar.gz
+    mode: '0755'
+  register: download_helm
+  when: not helm_check.stat.exists
+
+- name: "[Fetch Helm]: Unpack Helm tar.gz"
+  unarchive:
+    src: /tmp/helm.tar.gz
+    dest: /tmp/
+    remote_src: yes
+  when: download_helm
+
+- name: "[Fetch Helm]: Check helm was unpacked"
+  stat:
+    path: /tmp/linux-amd64/helm
+  when: download_helm
+
+- name: "[Fetch Helm]: Move helm into /usr/local/bin"
+  command: "mv /tmp/linux-amd64/helm /usr/local/bin/"
+  become: yes
+  when: download_helm
+
+#- name: "[Fetch Helm]: Notify"
+#  debug:
+#    msg: "We do not configure Tiller and neither should you because it's shit and insecure. Check main.yml for tiller stuff if you REALLY want it. We'd use v3 but you know, Istio -_-."
+#  when: download_helm
+#
+#- name: "[Fetch Helm]: Notify - Read above"
+#  pause:
+#    seconds: 10
+#  when: download_helm

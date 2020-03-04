@@ -1,0 +1,65 @@
+#cloud-config
+
+# Hostname management
+preserve_hostname: False
+hostname: {{item}}
+fqdn: {{item}}.deetothevee.co.uk
+
+# Users
+users:
+  - default
+  - name: ansible_user
+    groups: ['wheel']
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    ssh-authorized-keys:
+      - "{{SSH_PUB_KEY}}"
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDB0fk2dVynQU5/qFRQbPNKNbtK+NvOeKY7gFEM/zIiLxPGhySgqFxTPerJqlY0MXinRanIoMGWG6TOBKm6cOUqF92InMCIbgqBmD/GwkSsE1CIQJkr8HXvhBBsQSghxuDNuK3FF75UviK0xElEAV1xWeVLwc3KAmKreyZFYqpxpKfbsZDdhQ6KqdtbguGbGUXn+6dM9yIGnpKLOxzKYrgc+nmTHaijvpLeWVxqJo+ut/nC+uRzXrwruZQjTWkheqOdCl/ANTMXF7iFzjm/MWLfbW/SvVPCmx8Y2nsOLVAckIr4QK3OWJh1GLnpSE4sXcSTk/cl4WS5t4nQgheZC5XZ root@c0.deetothevee.co.uk
+  - name: root
+    lock-passwd: false
+    passwd: $1$SaltSalt$a751YJ4UdoFglLj8ifn4R0
+    ssh-authorized-keys:
+      - "{{SSH_PUB_KEY}}"
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDB0fk2dVynQU5/qFRQbPNKNbtK+NvOeKY7gFEM/zIiLxPGhySgqFxTPerJqlY0MXinRanIoMGWG6TOBKm6cOUqF92InMCIbgqBmD/GwkSsE1CIQJkr8HXvhBBsQSghxuDNuK3FF75UviK0xElEAV1xWeVLwc3KAmKreyZFYqpxpKfbsZDdhQ6KqdtbguGbGUXn+6dM9yIGnpKLOxzKYrgc+nmTHaijvpLeWVxqJo+ut/nC+uRzXrwruZQjTWkheqOdCl/ANTMXF7iFzjm/MWLfbW/SvVPCmx8Y2nsOLVAckIr4QK3OWJh1GLnpSE4sXcSTk/cl4WS5t4nQgheZC5XZ root@c0.deetothevee.co.uk
+
+# Configure where output will go
+output:
+  all: ">> /var/log/cloud-init.log"
+
+package_update: true
+package_upgrade: true
+
+packages:
+  - dnf
+  - vim
+  - curl
+  - wget
+  - epel-release
+  - python3
+  - python3-setuptools
+  - python3-pip
+  - libselinux-python
+  - python2-dnf
+
+manage-resolv-conf: true
+resolv_conf:
+  nameservers: ['8.8.4.4', '8.8.8.8']
+
+# configure interaction with ssh server
+ssh_genkeytypes: ['ed25519', 'rsa']
+
+# Install my public ssh key to the first user-defined user configured
+# in cloud.cfg in the template (which is centos for CentOS cloud images)
+#ssh_authorized_keys:
+#  - "{{SSH_PUB_KEY}}"
+#  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDB0fk2dVynQU5/qFRQbPNKNbtK+NvOeKY7gFEM/zIiLxPGhySgqFxTPerJqlY0MXinRanIoMGWG6TOBKm6cOUqF92InMCIbgqBmD/GwkSsE1CIQJkr8HXvhBBsQSghxuDNuK3FF75UviK0xElEAV1xWeVLwc3KAmKreyZFYqpxpKfbsZDdhQ6KqdtbguGbGUXn+6dM9yIGnpKLOxzKYrgc+nmTHaijvpLeWVxqJo+ut/nC+uRzXrwruZQjTWkheqOdCl/ANTMXF7iFzjm/MWLfbW/SvVPCmx8Y2nsOLVAckIr4QK3OWJh1GLnpSE4sXcSTk/cl4WS5t4nQgheZC5XZ root@c0.deetothevee.co.uk
+
+# set timezone for VM
+timezone: Europe/London
+
+# Remove cloud-init 
+runcmd:
+  - sed -i 's/enforcing/permissive/g' /etc/selinux/config /etc/selinux/config
+  - setenforce permissive
+  - yum -y remove cloud-init
+  - userdel -f centos

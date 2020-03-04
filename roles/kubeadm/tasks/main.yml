@@ -1,0 +1,54 @@
+---
+
+- name: "[Kubeadm]: Check if kubeadm has been initialised already"
+  stat:
+    path: /etc/kubernetes/kubelet.conf
+  register: kubeadm_check
+  tags:
+    - kubeadm_initialise
+
+- include: 100_config.yml
+  when: not kubeadm_check.stat.exists
+  tags:
+    - kubeadm_initialise
+
+- include: 102_disable_swap.yml
+  when: not kubeadm_check.stat.exists
+  tags:
+    - kubeadm_initialise
+    - disable_swap
+
+- include: 103_sysctl.yml
+  when: not kubeadm_check.stat.exists
+  tags:
+    - kubeadm_initialise
+    - sysctl
+
+- include: 104_install_packages.yml
+  when: not kubeadm_check.stat.exists
+  tags:
+    - kubeadm_initialise
+
+- include: 105_firewall.yml
+  tags:
+    - kubeadm_initialise
+
+- include: 106_init.yml
+  when: not kubeadm_check.stat.exists and initialise_kubeadm == true
+  tags:
+    - kubeadm_initialise
+
+- include: 107_kube_config.yml
+  when: not kubeadm_check.stat.exists and initialise_kubeadm == true
+  tags:
+    - kubeadm_initialise
+
+- include: 108_add_control_nodes.yml
+  when: not kubeadm_check.stat.exists and node_type|default("skip") == "controller" and initialise_kubeadm == false
+  tags:
+    - kubeadm_initialise
+
+- include: 109_add_nodes.yml
+  when: not kubeadm_check.stat.exists and node_type|default("skip") == "worker" and initialise_kubeadm == false
+  tags:
+    - kubeadm_initialise

@@ -1,0 +1,16 @@
+---
+
+- name: "[Prepare Nodes]: Prepare cluster instances"
+  hosts: k8s-controllers, k8s-workers, k8s-lbs
+  become: true
+  remote_user: "{{BECOME_USER}}"
+  roles:
+    - hosts
+    - { role: common, ansible_server: false }
+
+- name: "[Prepare Nodes]: Prepare cluster instances"
+  hosts: k8s-controllers, k8s-workers
+  become: true
+  remote_user: "{{BECOME_USER}}"
+  roles:
+    - docker

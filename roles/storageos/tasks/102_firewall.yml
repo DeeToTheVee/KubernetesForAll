@@ -1,0 +1,16 @@
+---
+
+- name: "[Firewall]: Enable firewall rules for StorageOS"
+  firewalld:
+    port: "{{item}}"
+    permanent: yes
+    state: enabled
+    zone: public
+  with_items:
+    - 5701-5711/tcp
+    - 5711/udp
+
+- name: "[Firewall]: Restart firewall"
+  systemd:
+    name: firewalld
+    state: restarted

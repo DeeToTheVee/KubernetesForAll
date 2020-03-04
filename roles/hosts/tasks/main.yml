@@ -1,0 +1,17 @@
+---
+
+- name: "[Hosts]: Transfer hosts file"
+  template:
+    src: hosts.j2
+    dest: /etc/hosts
+    mode: '0644'
+  tags:
+    - common
+    - hosts
+
+- name: "[Hosts]: Set the hostname"
+  hostname:
+    name: "{{inventory_hostname}}"
+  tags:
+    - common
+    - hosts

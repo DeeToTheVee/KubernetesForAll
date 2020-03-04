@@ -1,0 +1,18 @@
+---
+
+- name: "[Firewall]: Enable firewall rules"
+  firewalld:
+    port: "{{item}}"
+    permanent: yes
+    state: enabled
+    zone: public
+  with_items:
+    - 111/tcp
+    - 111/udp
+    - 2049/tcp
+    - 2049/udp
+
+- name: "[Firewall]: Restart firewall"
+  systemd:
+    name: firewalld
+    state: restarted

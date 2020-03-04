@@ -1,0 +1,10 @@
+---
+
+- name: "[Firewall]: Install base packages"
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - firewalld
+      - python-firewall

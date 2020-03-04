@@ -1,0 +1,30 @@
+---
+
+# Currently not supported by K8S
+#- name: "[Images]: Check if CentOS 8 template exists"
+#  stat:
+#    path: "{{ LIBVIRT_IMAGES }}/templates/centos8-template.qcow2"
+#  register: centos8_check
+#
+#- name: "[Images]: Fetch CentOS 8 Cloud Image - this may take a few minutes depending on your network connection"
+#  get_url:
+#    url: "http://cloud.centos.org/centos/8/x86_64/images/CentOS-8-GenericCloud-8.1.1911-20200113.3.x86_64.qcow2"
+#    dest: "{{ LIBVIRT_IMAGES }}/templates/centos8-template.qcow2"
+#    mode: '0755'
+#    owner: qemu
+#    group: qemu
+#  when: not centos8_check.stat.exists
+
+- name: "[Images]: Check if CentOS 7 template exists"
+  stat:
+    path: "{{ LIBVIRT_IMAGES }}/templates/centos7-template.qcow2"
+  register: centos7_check
+
+- name: "[Images]: Fetch CentOS 7 Cloud Image - this may take a few minutes depending on your network connection"
+  get_url:
+    url: "http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud-1907.qcow2"
+    dest: "{{ LIBVIRT_IMAGES }}/templates/centos7-template.qcow2"
+    owner: qemu
+    group: qemu
+    mode: '0755'
+  when: not centos7_check.stat.exists

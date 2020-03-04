@@ -1,0 +1,8 @@
+---
+
+- name: "[Build Cluster]: Initialise other control plane nodes"
+  hosts: k8s-controllers
+  become: true
+  remote_user: "{{BECOME_USER}}"
+  roles:
+    - { role: kubeadm, initialise_kubeadm: false, node_type: "controller" }

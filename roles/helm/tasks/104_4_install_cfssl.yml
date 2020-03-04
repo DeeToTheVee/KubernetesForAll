@@ -1,0 +1,25 @@
+---
+
+- stat:
+    path: /usr/local/bin/cfssl
+  register: cfssl_existance_check
+
+- name: "Fetch cfssl"
+  get_url:
+    url: "https://github.com/cloudflare/cfssl/releases/download/v1.4.1/cfssl_1.4.1_linux_amd64"
+    dest: /usr/local/bin/cfssl
+    mode: 755
+  become: true
+  when: not cfssl_existance_check.stat.exists
+
+- stat:
+    path: /usr/local/bin/cfssljson
+  register: cfssljson_existance_check
+
+- name: "Fetch cfssljson"
+  get_url:
+    url: "https://github.com/cloudflare/cfssl/releases/download/v1.4.1/cfssljson_1.4.1_linux_amd64"
+    dest: /usr/local/bin/cfssljson
+    mode: 755
+  become: true
+  when: not cfssljson_existance_check.stat.exists

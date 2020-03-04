@@ -1,0 +1,23 @@
+---
+
+- name: "[Config]: Copy StorageOS files"
+  template:
+    src: "{{item}}.yml.j2"
+    dest: "/tmp/{{item}}.yml"
+    mode: '0644'
+  delegate_to: localhost
+  with_items:
+    - storageos-install
+    - storageos-secret
+  tags:
+    - install_storageos
+
+- name: "[Config]: Fetch StorageOS Operator"
+  get_url:
+    url: "https://github.com/storageos/go-cli/releases/download/{{STORAGEOS_CLI_VERSION}}/storageos_linux_amd64"
+    dest: /tmp/storageos-operator.yaml
+    mode: '0755'
+  register: download_storageos
+  delegate_to: localhost
+  tags:
+    - install_storageos

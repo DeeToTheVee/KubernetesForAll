@@ -1,0 +1,26 @@
+---
+
+- name: "[Kubeconfig]: Make .kube dir"
+  file:
+    state: directory
+    path: "/home/{{BECOME_USER}}/.kube"
+    owner: "{{BECOME_USER}}"
+    group: "{{BECOME_USER}}"
+    mode: '0755'
+
+- name: "[Kubeconfig]: Copy kube config to home"
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: "/home/{{BECOME_USER}}/.kube/config"
+    owner: "{{BECOME_USER}}"
+    group: "{{BECOME_USER}}"
+    mode: '0644'
+    remote_src: yes
+
+- name: "[Kubeconfig]: Fetch kube config to Ansible server to allow later interaction"
+  fetch:
+    src: /etc/kubernetes/admin.conf
+    dest: "/home/{{LOCAL_USER}}/.kube/config"
+    flat: yes
+    user: "{{LOCAL_USER}}"
+    group: "{{LOCAL_USER}}"

@@ -1,0 +1,16 @@
+---
+
+- name: "[Fetch StorageOS]: Check if StorageOS CLI exists"
+  stat:
+    path: /usr/local/bin/storageos
+  register: storageos_check
+  delegate_to: localhost
+
+- name: "[Fetch StorageOS]: Fetch StorageOS"
+  get_url:
+    url: "https://github.com/storageos/go-cli/releases/download/{{STORAGEOS_CLI_VERSION}}/storageos_linux_amd64"
+    dest: /usr/local/bin/storageos
+    mode: '0755'
+  register: download_storageos
+  delegate_to: localhost
+  when: not storageos_check.stat.exists

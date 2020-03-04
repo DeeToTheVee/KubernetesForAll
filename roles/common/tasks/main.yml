@@ -1,0 +1,20 @@
+---
+
+- include: 100_install_general_packages.yml
+  tags:
+    - common
+    - install_packages
+    - install_general_packages
+
+- include: 102_install_ansible_packages.yml
+  when: ansible_server|default(false) == true
+  tags:
+    - common
+    - install_packages
+    - install_anisble_packages
+
+- include: 103_selinux.yml
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+  tags:
+    - common
+    - selinux

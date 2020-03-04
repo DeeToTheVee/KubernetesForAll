@@ -1,0 +1,15 @@
+---
+
+- name: "[Configure Namespaces]: Create namespaces tiller will sit in"
+  k8s:
+    state: present
+    validate_certs: no
+    kubeconfig: "/home/{{LOCAL_USER}}/.kube/config"
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{item}}"
+  with_items: "{{TILLER_NAMESPACES}}"
+
+#Change above namespaces to whatever you need, maybe I'll let you provide an array alter if I'm feeling kind ;-)

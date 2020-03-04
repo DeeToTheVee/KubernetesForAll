@@ -1,0 +1,33 @@
+---
+
+- name: "[Prepare]: Generate the data file holding directory"
+  file:
+    state: directory
+    path: "/tmp/{{item}}/"
+    mode: '0755'
+  tags:
+    - common
+    - enable_libvirtd
+
+- name: "[Prepare]: Generate the meta-data file"
+  template:
+    src: libvirt/meta-data.j2
+    dest: "/tmp/{{item}}/meta-data"
+  tags:
+    - common
+    - enable_libvirtd
+
+- name: "[Prepare]: Generate the user-data file"
+  template:
+    src: libvirt/user-data.j2
+    dest: "/tmp/{{item}}/user-data"
+  tags:
+    - common
+    - enable_libvirtd
+
+- name: "[Prepare]: Prepare VM ISO"
+  command: "genisoimage -o {{LIBVIRT_IMAGES}}/{{item}}-cidata.iso -V cidata -J -r /tmp/{{item}}/user-data /tmp/{{item}}/meta-data"
+  register: iso_generated
+  tags:
+    - common
+    - enable_libvirtd

@@ -1,0 +1,28 @@
+---
+
+- include: 100_fetch_storageos.yml
+  tags:
+    - install_storageos
+    - fetch_storageos
+
+- include: 101_configure_disks.yml
+  tags:
+    - install_storageos
+    - configure_storageos_disks
+
+- include: 102_firewall.yml
+  tags:
+    - install_storageos
+    - firewall
+
+- include: 103_config.yml
+  tags:
+    - install_storageos
+
+- include: 104_init.yml
+  tags:
+    - install_storageos
+
+- include: 105_test.yml
+  tags:
+    - install_storageos

@@ -1,0 +1,15 @@
+---
+
+- name: "[APT - General Configuration]: APT - Wait for any possible unattended upgrade to finish"
+  command: systemd-run --property="After=apt-daily.service apt-daily-upgrade.service" --wait /bin/true
+  when: ansible_distribution == 'Ubuntu'
+
+- name: "[APT - General Configuration]: APT - Add Kubernetes apt signing key"
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: "[APT - General Configuration]: APT - Add the apt repo to sources.d"
+  apt_repository:
+    repo: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
+    state: present

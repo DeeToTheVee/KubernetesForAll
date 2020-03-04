@@ -1,0 +1,46 @@
+---
+
+- name: "Create inital user"
+  hosts: builders
+  remote_user: root
+  become_method: su
+  tasks:
+    - name: "Add ansible user - {{BECOME_USER}}"
+      user:
+        name: "{{BECOME_USER}}"
+        comment: "This is the user that Ansible uses"
+    - name: "Allow Password-less Sudo"
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: "^{{BECOME_USER}}"
+        line: "{{BECOME_USER}}    ALL=(ALL)       NOPASSWD: ALL"
+    - name: "Create .ssh dir"
+      file:
+        state: directory
+        path: "/home/{{BECOME_USER}}/.ssh"
+        owner: "{{BECOME_USER}}"
+        group: "{{BECOME_USER}}"
+        mode: '0700'
+    - name: "Copy ssh key across to {{BECOME_USER}}"
+      authorized_key:
+        user: "{{BECOME_USER}}"
+        key: "{{ lookup('file', '/home/{{LOCAL_USER}}/.ssh/id_rsa.pub') }}"
+        path: "/home/{{BECOME_USER}}/.ssh/authorized_keys"
+        manage_dir: no
+    - name: "Sort .ssh/authorized_keys perms"
+      file:
+        path: "/home/{{BECOME_USER}}/.ssh/authorized_keys"
+        owner: "{{BECOME_USER}}"
+        group: "{{BECOME_USER}}"
+        mode: '0600'
+    - name: "Disable root login with password"
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        state: present
+        regexp: "^PermitRootLogin"
+        line: "PermitRootLogin without-password"
+    - name: "Restart SSH"
+      service:
+        name: sshd
+        state: restarted

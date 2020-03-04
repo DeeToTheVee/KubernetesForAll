@@ -1,0 +1,31 @@
+
+global
+    maxconn 50000
+    log /dev/log local0
+    user haproxy
+    group haproxy
+    #stats socket /run/haproxy/admin.sock user haproxy group haproxy mode 660 level admin
+defaults
+    timeout connect 10s
+    timeout client 30s
+    timeout server 30s
+    log global
+    mode tcp
+    option tcplog
+    maxconn 3000
+frontend k8s-controllers-lb
+    bind {{K8S_CONTROL_PLANE_LB_ADDRESS}}:6443
+    default_backend k8s-controllers
+backend k8s-controllers
+    balance roundrobin
+    mode tcp
+    option tcp-check
+{% for item in groups[node_group] %}
+    server {{ hostvars[item]['inventory_hostname'] }} {{ hostvars[item]['ansible_host'] }}:6443 check port 6443
+{% endfor %}
+listen stats
+    bind *:8404
+    stats enable
+    stats uri /monitor
+    stats refresh 5s
+    stats auth {{LB_USER}}:{{LB_PASSWD}}

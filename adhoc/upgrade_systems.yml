@@ -1,0 +1,30 @@
+---
+
+- name: Upgrade all Windows systems
+  hosts: k8s-worker-4
+  tasks:
+    - name: Install all Windows security, critical, and rollup updates without a scheduled task
+      win_updates:
+        category_names:
+          - SecurityUpdates
+          - CriticalUpdates
+          - UpdateRollups
+      when: ansible_distribution == 'Microsoft Windows Server 2019 Standard'
+      tags: windows_updates
+
+- name: Upgrade all Linux systems
+  hosts: all
+  become: true
+  remote_user: "{{BECOME_USER}}"
+  tasks:
+    - name: YUM - Upgrade all packages to the latest version
+      yum:
+        name: '*'
+        state: latest
+      when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+      tags: linux_updates
+    - name: APT - Update all packages to the latest version
+      apt:
+        upgrade: dist
+      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+      tags: linux_updates

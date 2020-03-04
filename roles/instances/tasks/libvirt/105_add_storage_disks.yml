@@ -1,0 +1,15 @@
+---
+
+##Workers only
+- name: "[Prep storage disks]: Check if storage disk has been initialised already"
+  stat:
+    path: "{{LIBVIRT_IMAGES}}/ssd/{{item}}-storage.qcow2"
+  register: storage_disk_check
+
+- name: "[Prep storage disks]: Create storage disk"
+  command: "qemu-img create -f qcow2 {{LIBVIRT_IMAGES}}/ssd/{{item}}-storage.qcow2 250G"
+  when: not storage_disk_check.stat.exists
+
+- name: "[Prep storage disks]: Attach storage disk"
+  command: "virsh attach-disk {{item}} {{LIBVIRT_IMAGES}}/ssd/{{item}}-storage.qcow2 vdb --cache none"
+  when: not storage_disk_check.stat.exists

@@ -1,0 +1,12 @@
+---
+
+
+- include: 100_packages.yml
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+  tags:
+    - firewall
+
+- include: 101_firewalld_configuration.yml
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+  tags:
+    - firewall

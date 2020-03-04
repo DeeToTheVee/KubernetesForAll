@@ -1,0 +1,11 @@
+---
+
+## Todo: Remove this as storage OS takes over NFS
+#- name: "[Prepare Nodes]: Configure Storage nodes"
+#  hosts: k8s-storage
+#  become: true
+#  remote_user: "{{BECOME_USER}}"
+#  roles:
+#    - { role: common, ansible_server: false }
+#    - firewall
+#    - nfs

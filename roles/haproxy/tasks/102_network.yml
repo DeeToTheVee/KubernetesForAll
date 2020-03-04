@@ -1,0 +1,12 @@
+---
+
+- name: "[Networking] - Create VIP Interface"
+  shell: "nmcli con modify 'System {{ansible_default_ipv4.interface}}' +ipv4.addresses {{ K8S_CONTROL_PLANE_LB_ADDRESS }}/24 && nmcli con mod 'System {{ansible_default_ipv4.interface}}' ipv4.routes '192.168.0.0/24 {{ K8S_CONTROL_PLANE_LB_ADDRESS }}'"
+  register: ip_configured
+  when:
+    - K8S_CONTROL_PLANE_LB_ADDRESS not in ansible_all_ipv4_addresses
+    - node_group == 'k8s-controllers'
+
+- name: "[Networking] - Reload network"
+  shell: "nmcli con down 'System {{ ansible_default_ipv4.interface }}' && nmcli con up 'System {{ansible_default_ipv4.interface}}'"
+  when: ip_configured.changed

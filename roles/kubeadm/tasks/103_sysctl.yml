@@ -1,0 +1,34 @@
+---
+
+- name: "[sysctl changes]: Add the br_netfilter module"
+  modprobe:
+    name: br_netfilter
+    state: present
+
+- name: "[sysctl changes]: Enable net.bridge.bridge-nf-call-iptables"
+  sysctl:
+    name: net.bridge.bridge-nf-call-iptables
+    value: "1"
+    sysctl_set: yes
+
+- name: "[sysctl changes]: Enable net.bridge.bridge-nf-call-ip6tables"
+  sysctl:
+    name: net.bridge.bridge-nf-call-ip6tables
+    value: "1"
+    sysctl_set: yes
+
+- name: "[sysctl changes]: Enable net.ipv4.ip_forward"
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+    sysctl_set: yes
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: "[sysctl changes]: Make sure the sysctl changes are static"
+  copy:
+    src: k8s.conf
+    dest: /etc/sysctl.d/k8s.conf
+    owner: root
+    group: root
+    mode: '0644'
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'

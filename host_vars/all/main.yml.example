@@ -1,0 +1,9 @@
+---
+
+REMOTE_INSTANCE: false              # Is this a VM or a Physical Machine? If Physical, you need to install the OS yourself... for now.
+
+# KVM/QEMU Settings
+INSTANCE_MAC: "52:54:00:6B:58:11"   # So, we could auto generate a MAC address, but we leave it to you. We can't do dynamic IPs yet so you need to set these as defined in hosts.yml on your router before you start.
+CPU: "4"                            # How many CPUs on the VM?
+MEMORY: "8192"                      # How much Memory on the VM?
+DISK_SIZE: "200"                     # What size disk will be attached to the VM

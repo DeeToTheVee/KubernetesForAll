@@ -1,0 +1,56 @@
+---
+
+- name: "[APT Packages]: Hold back packages from auto upgrades"
+  dpkg_selections:
+    name: "{{item}}"
+    selection: hold
+  with_items:
+    - kubelet
+    - kubeadm
+    - kubectl
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: "[APT Packages]: Install cluster packages"
+  package:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - python-pip
+      - kubelet
+      - kubeadm
+      - kubectl
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: "[APT Packages]: Remove dependencies that are no longer required"
+  apt:
+    autoremove: yes
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: "[YUM Configuration]: Add Kubernetes repo"
+  copy:
+    src: kubernetes.repo
+    dest: /etc/yum.repos.d/kubernetes.repo
+    owner: root
+    group: root
+    mode: '0644'
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+- name: "[YUM Packages]: Install server packages"
+  yum:
+    name: "{{ packages }}"
+    state: present
+    disable_excludes: kubernetes
+  vars:
+    packages:
+      - kubectl
+      - kubeadm
+      - kubectl
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+- name: "[Packages]: Make sure kubelet is enabled"
+  systemd:
+    name: kubelet
+    enabled: yes
+    daemon_reload: yes
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'

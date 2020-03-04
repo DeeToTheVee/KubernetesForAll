@@ -1,0 +1,22 @@
+---
+
+
+- include: 100_packages.yml
+  tags:
+    - storage
+    - nfs
+
+- include: 102_config.yml
+  tags:
+    - storage
+    - nfs
+
+- include: 103_firewall.yml
+  tags:
+    - storage
+    - nfs
+
+- include: 104_service.yml
+  tags:
+    - storage
+    - nfs

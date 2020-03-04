@@ -1,0 +1,8 @@
+---
+
+- name: "[Build Cluster]: Initialise worker nodes"
+  hosts: k8s-workers
+  become: true
+  remote_user: "{{BECOME_USER}}"
+  roles:
+    - { role: kubeadm, initialise_kubeadm: false, node_type: "worker" }

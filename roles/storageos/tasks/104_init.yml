@@ -1,0 +1,51 @@
+---
+
+#TASK [storageos : [init]: Install StorageOS Operator onto K8S]
+# fatal:
+#  [k8s-worker-1 -> localhost]:
+#  FAILED! =>
+#  {
+#    "changed": true,
+#    "cmd": ["kubectl", "create", "-f", "/tmp/storageos-operator.yaml"],
+#    "delta": "0:00:00.173125",
+#    "end": "2020-03-03 23:51:01.612704",
+#    "msg": "non-zero return code",
+#    "rc": 1,
+#    "start": "2020-03-03 23:51:01.439579",
+#    "stderr": "The connection to the server localhost:8080 was refused - did you specify the right host or port?",
+#    "stderr_lines": ["The connection to the server localhost:8080 was refused - did you specify the right host or port?"],
+#    "stdout": "",
+#    "stdout_lines": []
+#  }
+
+- name: "[init]: Install StorageOS Operator onto K8S"
+  command: "kubectl create -f /tmp/storageos-operator.yaml "
+  delegate_to: localhost
+  tags:
+    - install_storageos
+
+- name: "[init]: StorageOS Operator can take a few seconds to come up..."
+  pause:
+    seconds: 10
+  delegate_to: localhost
+  tags:
+    - install_storageos
+
+- name: "[init]: Install StorageOS secret onto K8S"
+  command: "kubectl create -f /tmp/storageos-secret.yaml"
+  delegate_to: localhost
+  tags:
+    - install_storageos
+
+- name: "[init]: Install StorageOS onto K8S"
+  command: "kubectl create -f /tmp/storageos-install.yaml"
+  delegate_to: localhost
+  tags:
+    - install_storageos
+
+- name: "[init]: StorageOS can take around 65 seconds to come up, waiting for 80 seconds..."
+  pause:
+    seconds: 80
+  delegate_to: localhost
+  tags:
+    - install_storageos

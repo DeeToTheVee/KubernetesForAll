@@ -1,0 +1,45 @@
+---
+
+- name: "[Configs] - Backup default haproxy.cfg"
+  copy:
+    src: /etc/haproxy/haproxy.cfg
+    dest: /etc/haproxy/haproxy.cfg.orig
+    remote_src: true
+
+#- name: "[Configs] - Set NodeGroup to controllers"
+#  set_fact:
+#    node_group: groups['k8s-controllers']
+#  when: node_type|default("skip") == "controller"
+
+- name: "[Configs] - Enable HAProxy"
+  copy:
+    src: haproxy
+    dest: /etc/default/haproxy
+    mode: 0644
+
+- name: "[Configs] - Create new Controller haproxy.cfg"
+  template:
+    src: templates/haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    mode: 0644
+  when: node_group == 'k8s-controllers'
+
+#- name: "[Configs] - Set NodeGroup to controllers"
+#  set_fact:
+#    node_group: groups['k8s-workers']
+#  when: node_type|default("skip") == "worker"
+
+- name: "[Configs] - Update /etc/rsyslog.conf"
+  lineinfile:
+    path: /etc/rsyslog.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - { regexp: '#\$ModLoad imudp', line: '$ModLoad imudp' }
+    - { regexp: '#\$UDPServerRun 514', line: '$UDPServerRun 514' }
+
+- name: "[Configs] - Create /etc/rsyslog.d/haproxy.conf"
+  copy:
+    src: files/haproxy.conf
+    dest: /etc/rsyslog.d/haproxy.conf
+    mode: 0644

@@ -1,0 +1,51 @@
+---
+
+- name: Generate new token
+  hosts: "{{groups['k8s-controllers'][0]}}"
+  remote_user: "{{BECOME_USER}}"
+  become: true
+  tasks:
+    - name: Generate new token
+      command: "kubeadm token create --print-join-command"
+      run_once: true
+      register: kubeadm_new_token_gen
+      tags:
+        - kubeadm_new_token
+
+    - name: Set token facts
+      set_fact:
+        control_token: "{{ kubeadm_new_token_gen.stdout }}"
+      run_once: true
+      when: kubeadm_new_token_gen
+      tags:
+        - kubeadm_new_token
+
+    - name: Debug Join Token
+      debug:
+        msg: "{{control_token}}"
+      run_once: true
+      when: kubeadm_new_token_gen
+      tags:
+        - kubeadm_new_token
+
+    - name: Write Control Plane Token out
+      copy:
+        content: "{{control_token}}"
+        dest: /tmp/control_plane_token
+      run_once: true
+      when: kubeadm_new_token_gen
+      register: kubeadm_write_new_control_plane_join
+      tags:
+        - kubeadm_new_token
+
+    - name: Fetch Control Plane Token
+      fetch:
+        src: /tmp/control_plane_token
+        dest: "{{KUBE_ADM_TOKEN_DIR}}/node_token"
+        flat: yes
+      run_once: true
+      when:
+        - kubeadm_new_token_gen
+        - kubeadm_write_new_control_plane_join
+      tags:
+        - kubeadm_new_token

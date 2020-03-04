@@ -1,0 +1,34 @@
+---
+
+## Uncomment for KempLB
+#- name: "[libvirtd - init]: Initialise the loadbalancer"
+#  command: "virt-install --connect qemu:///system \
+#            --import --name {{item}} \
+#            --memory {{hostvars[item]['MEMORY']}} --vcpus {{hostvars[item]['CPU']}} --cpu host \
+#            --disk {{LIBVIRT_IMAGES}}/ssd/{{item}}.qcow2,format=qcow2,bus=virtio \
+#            --network bridge=br0,model=virtio,mac={{hostvars[item]['INSTANCE_MAC']}} \
+#            --os-type=linux \
+#            --os-variant=centos7.0 \
+#            --graphics vnc \
+#            --noautoconsole"
+#  when: item not in all_vms['list_vms'] and not hostvars[item]['REMOTE_INSTANCE']
+#  with_items:
+#    - "{{ groups['k8s-lbs'] }}"
+
+- name: "[Init]: Initialise the instances"
+  command: "virt-install --connect qemu:///system \
+            --import --name {{item}} \
+            --memory {{hostvars[item]['MEMORY']}} --vcpus {{hostvars[item]['CPU']}} --cpu host \
+            --disk {{LIBVIRT_IMAGES}}/ssd/{{item}}.qcow2,format=qcow2,bus=virtio \
+            --disk {{LIBVIRT_IMAGES}}/{{item}}-cidata.iso,device=cdrom \
+            --network bridge=br0,model=virtio,mac={{hostvars[item]['INSTANCE_MAC']}} \
+            --os-type=linux \
+            --os-variant=centos7.0 \
+            --graphics vnc \
+            --noautoconsole"
+  when: item not in all_vms['list_vms'] and not hostvars[item]['REMOTE_INSTANCE']
+  with_items:
+    - "{{ groups['k8s-controllers'] }}"
+    - "{{ groups['k8s-workers'] }}"
+    - "{{ groups['k8s-storage'] }}"
+    - "{{ groups['k8s-lbs'] }}" # Comment this line for KempLB

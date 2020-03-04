@@ -1,0 +1,20 @@
+---
+
+# Local Tasks
+- import_playbook: plays/101_configure_ansible_node.yml
+- import_playbook: plays/102_configure_deployment_nodes.yml
+- import_playbook: plays/103_deploy_instances.yml
+- import_playbook: plays/104_configure_loadbalancer.yml
+
+# Preparation Tasks
+- import_playbook: plays/201_prepare_nodes.yml
+- import_playbook: plays/202_configure_firewall.yml
+#- import_playbook: plays/203_configure_storage.yml
+
+# Building Cluster Tasks
+- import_playbook: plays/301_initialise_cluster.yml
+- import_playbook: plays/302_add_control_nodes.yml
+- import_playbook: plays/303_add_worker_nodes.yml
+- import_playbook: plays/304_setup_storageos.yml
+
+#- import_playbook: 999_post_install_tasks.yml

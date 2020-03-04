@@ -1,0 +1,62 @@
+all:
+  hosts:
+    localhost:
+#      ansible_python_interpreter: /etc/ansible/bin/activate
+  children:
+    builders: # Presumed to be CentOS8
+      hosts:
+        c0:
+          ansible_host: 192.168.0.4
+          ansible_user: ansible_user
+    home:
+      hosts:
+        Andromeda-Linux:
+          ansible_host: 192.168.0.2
+        Michelle-Laptop:
+          ansible_host: 192.168.0.3
+    k8s-lbs:
+      hosts:
+        k8s-controllers-lb:
+          ansible_host: 192.168.0.100
+        k8s-workers-lb:
+          ansible_host: 192.168.0.101
+    k8s-controllers:
+      hosts:
+        k8s-controller-0:
+          ansible_host: 192.168.0.110
+        k8s-controller-1:
+          ansible_host: 192.168.0.111
+#        k8s-controller-2:
+#          ansible_host: 192.168.0.112
+    k8s-workers:
+      hosts:
+        k8s-worker-0:
+          ansible_host: 192.168.0.120
+        k8s-worker-1:
+          ansible_host: 192.168.0.121
+        k8s-worker-2:
+          ansible_host: 192.168.0.122
+# WINDOWS NODES AND MORE - WIP
+#        k8s-worker-3:
+#          ansible_host: 192.168.0.7
+#          ansible_connection: winrm
+#          ansible_user: USERNAME
+#          ansible_password: PASSWORD
+#          ansible_shell_type: powershell
+#          ansible_winrm_server_cert_validation: ignore
+#    k8s-etcd:
+#      hosts:
+#        k8s-etcd-0:
+#          ansible_host: 192.168.0.130
+#        k8s-etcd-1:
+#          ansible_host: 192.168.0.131
+#        k8s-etcd-2:
+#          ansible_host: 192.168.0.132
+#    k8s-vpn:
+#      hosts:
+#        vpn-0:
+#          ansible_host: 192.168.0.142
+#    k8s-docker:
+#      hosts:
+#        docker-0:
+#          ansible_host: 192.168.0.143

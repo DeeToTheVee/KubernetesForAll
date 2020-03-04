@@ -1,0 +1,25 @@
+---
+
+# This was developed to work with: https://github.com/DeeToTheVee/easy-lb -- This project will be updated to work with HAProxy soon.
+#- name: "[LocalTasks - Kemp LBs]: Configure Control-Plane Loadbalancer"
+#  hosts: nodes
+#  become: true
+#  remote_user: "{{BECOME_USER}}"
+#  roles:
+#    - { role: loadbalancer }
+
+- name: "[Control Plane HAProxy]: Configure Control-Plane Loadbalancer"
+  hosts: k8s-controllers-lb
+  become: true
+  remote_user: "{{BECOME_USER}}"
+  roles:
+    - { role: common }
+    - { role: haproxy, node_group: "k8s-controllers" }
+
+- name: "[Control Plane HAProxy]: Configure Workers Loadbalancer"
+  hosts: k8s-workers-lb
+  become: true
+  remote_user: "{{BECOME_USER}}"
+  roles:
+    - { role: common }
+    - { role: haproxy, node_group: "k8s-workers" }

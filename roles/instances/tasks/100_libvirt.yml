@@ -1,0 +1,91 @@
+---
+
+- name: "[libvirtd]: Fetch all VMs"
+  virt:
+    command: list_vms
+  register: all_vms
+  tags:
+    - configure_instances
+
+- name: "[libvirtd]: Prepare nodes"
+  include: libvirt/101_prepare.yml
+  when: item not in all_vms['list_vms'] and not hostvars[item]['REMOTE_INSTANCE']
+  with_items:
+    - "{{ groups['k8s-controllers'] }}"
+    - "{{ groups['k8s-workers'] }}"
+    - "{{ groups['k8s-storage'] }}"
+    - "{{ groups['k8s-lbs'] }}" # Comment out this line when using KempLB
+  tags:
+    - configure_instances
+
+- name: "[libvirtd]: Check for and Prepare Disks for nodes"
+  include: libvirt/102_prep_node_disks_libvirt.yml
+  when: item not in all_vms['list_vms'] and not hostvars[item]['REMOTE_INSTANCE']
+  with_items:
+    - "{{ groups['k8s-controllers'] }}"
+    - "{{ groups['k8s-workers'] }}"
+    - "{{ groups['k8s-storage'] }}"
+    - "{{ groups['k8s-lbs'] }}" # Comment out this line when using KempLB
+  tags:
+    - configure_instances
+    - libvirtd_prep_disks
+
+## Enable for KempLB
+#- name: "[libvirtd]: Check for and Load Balancer Disks for {{item}}"
+#  include: libvirt/103_prep_lb_disks_libvirt.yml
+#  when: item not in all_vms['list_vms'] and not hostvars[item]['REMOTE_INSTANCE']
+#  with_items:
+#    - "{{ groups['k8s-lbs'] }}"
+#  tags:
+#    - common
+#    - enable_libvirtd
+#    - libvirtd_prep_lb_disks
+
+- name: "[libvirtd]: Init instances"
+  include: libvirt/104_init.yml
+  tags:
+    - configure_instances
+    - libvirtd_build_instances
+
+- name: "[Init]: Refresh all VMs"
+  virt:
+    command: list_vms
+  register: updated_vms
+
+- name: "Start instances"
+  virt:
+    name: "{{item}}"
+    state: running
+    autostart: no
+  when: item in updated_vms['list_vms'] and not hostvars[item]['REMOTE_INSTANCE']
+  with_items:
+    - "{{groups['k8s-lbs']}}"
+    - "{{groups['k8s-controllers']}}"
+    - "{{groups['k8s-workers']}}"
+    - "{{groups['k8s-storage']}}"
+
+- name: "Pause for 1 minute to ensure instances are up and initialised"
+  pause:
+    seconds: 60
+  when: build_instances|default("false") == "true"
+
+- name: "[libvirtd]: Setup Storage for worker node instances"
+  include: libvirt/105_add_storage_disks.yml
+  when: item in updated_vms['list_vms'] and not hostvars[item]['REMOTE_INSTANCE']
+  with_items:
+    - "{{ groups['k8s-workers'] }}"
+  tags:
+    - configure_instances
+    - prep_libvirt_storage_disks
+
+- name: "[libvirtd]: Cleanup node"
+  include: libvirt/106_cleanup.yml
+  with_items:
+    - "{{ groups['k8s-controllers'] }}"
+    - "{{ groups['k8s-workers'] }}"
+    - "{{ groups['k8s-storage'] }}"
+    - "{{ groups['k8s-lbs'] }}"
+  when: not hostvars[item]['REMOTE_INSTANCE']
+  tags:
+    - configure_instances
+    - libvirtd_cleanup

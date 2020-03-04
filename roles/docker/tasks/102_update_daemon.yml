@@ -1,0 +1,22 @@
+---
+
+- name: "[Docker - Daemon]: Copy the demon config over"
+  copy:
+    src: daemon.json
+    dest: /etc/docker/daemon.json
+    mode: '0644'
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: "[Docker - Daemon]: Make sure docker is Started"
+  service:
+    name: docker
+    state: restarted
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: "[Docker - Daemon]: Make sure docker is Started"
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+    daemon_reload: yes
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'

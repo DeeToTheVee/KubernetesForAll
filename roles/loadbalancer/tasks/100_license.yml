@@ -1,0 +1,76 @@
+---
+
+- name: "[Loadbalancer - license]: Read LB Eula"
+  uri:
+    url: "https://{{hostvars[item]['ansible_host']}}/access/readeula"
+    method: GET
+    validate_certs: no
+    return_content: yes
+  ignore_errors: yes
+  register: read_eula
+  tags:
+    - create_loadbalancer_eula
+    - create_loadbalancer
+
+- name: "[Loadbalancer - license]: Set Magic token facts"
+  set_fact:
+    magic_token: "{{ read_eula.content | regex_search('(?<=(<Magic>))([\\S\\s]*?)(?=(<\\/Magic>))') }}"
+  when: read_eula
+  tags:
+    - create_loadbalancer_eula
+    - create_loadbalancer
+
+- name: "[Loadbalancer - license]: Accept Eula and license"
+  uri:
+    url: "https://{{hostvars[item]['ansible_host']}}/access/accepteula?magic={{magic_token}}&type=free"
+    method: GET
+    validate_certs: no
+    return_content: yes
+  register: accept_eula
+  tags:
+    - create_loadbalancer_eula
+    - create_loadbalancer
+
+- name: "[Loadbalancer - license]: Set Magic token facts"
+  set_fact:
+    accept_magic_token: "{{ accept_eula.content | regex_search('(?<=(<Magic>))([\\S\\s]*?)(?=(<\\/Magic>))') }}"
+  when: read_eula
+  tags:
+    - create_loadbalancer_eula
+    - create_loadbalancer
+
+- name: "[Loadbalancer - license]: Accept Call home"
+  uri:
+    url: "https://{{hostvars[item]['ansible_host']}}/access/accepteula2?magic={{accept_magic_token}}&accept=yes"
+    method: GET
+    validate_certs: no
+  tags:
+    - create_loadbalancer_eula
+    - create_loadbalancer
+
+- name: "[Loadbalancer - license]: License it"
+  uri:
+    url: "https://{{hostvars[item]['ansible_host']}}/access/alsilicense?kempid={{KEMP_ID}}&password={{KEMP_PASSWORD}}&orderid=0dc69d7e2b4f2b73b5a7bb9146abdb702a83e3ed"
+    method: GET
+    validate_certs: no
+  tags:
+    - create_loadbalancer_eula
+    - create_loadbalancer
+
+- name: "[Loadbalancer - license]: Enable API"
+  uri:
+    url: "https://{{hostvars[item]['ansible_host']}}/access/set?param=enableapi&value=yes"
+    method: GET
+    validate_certs: no
+  tags:
+    - create_loadbalancer_eula
+    - create_loadbalancer
+
+- name: "[Loadbalancer - license]: Set initial password"
+  uri:
+    url: "https://{{hostvars[item]['ansible_host']}}/access/set_initial_passwd?passwd={{LB_PASSWD}}"
+    method: GET
+    validate_certs: no
+  tags:
+    - create_loadbalancer_eula
+    - create_loadbalancer

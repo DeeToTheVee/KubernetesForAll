@@ -1,0 +1,10 @@
+---
+
+- include: 100_fetch_istio.yml
+  tags:
+    - install_istio
+    - fetch_itsio
+
+- include: 101_install_istio.yml
+  tags:
+    - install_istio

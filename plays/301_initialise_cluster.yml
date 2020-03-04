@@ -1,0 +1,9 @@
+---
+
+- name: "[Build Cluster]: Initialise first control plane node"
+  hosts: "{{groups['k8s-controllers'][0]}}"
+  become: true
+  remote_user: "{{BECOME_USER}}"
+  roles:
+    - { role: kubeadm, initialise_kubeadm: true }
+    - { role: weave, initialise_kubeadm: true }

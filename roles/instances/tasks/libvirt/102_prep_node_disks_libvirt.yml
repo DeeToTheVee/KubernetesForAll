@@ -1,0 +1,25 @@
+---
+
+- name: "[Prep node disks]: Check if disk has been initialised already"
+  stat:
+    path: "{{LIBVIRT_IMAGES}}/ssd/{{item}}.qcow2"
+  register: disk_check
+
+- name: "[Prep node disks]: Copy Linux disks"
+  copy:
+    src: "{{LIBVIRT_IMAGES}}/templates/centos{{CENTOS_VERSION}}-template.qcow2"
+    dest: "{{LIBVIRT_IMAGES}}/{{item}}.qcow2"
+    remote_src: yes
+  when: not disk_check.stat.exists
+
+- name: "[Prep node disks]: Prepare Disks"
+  command: "qemu-img create -f qcow2 -o preallocation=metadata {{LIBVIRT_IMAGES}}/{{item}}.new.image {{hostvars[item]['DISK_SIZE']}}G"
+  when: not disk_check.stat.exists
+
+- name: "[Prep node disks]: Resize Disks"
+  command: "virt-resize --quiet --expand /dev/sda1 {{LIBVIRT_IMAGES}}/{{item}}.qcow2 {{LIBVIRT_IMAGES}}/{{item}}.new.image"
+  when: not disk_check.stat.exists
+
+- name: "[Prep node disks]: Shink to dynamic disks to reserve space"
+  command: "qemu-img convert -O qcow2 {{LIBVIRT_IMAGES}}/{{item}}.new.image {{LIBVIRT_IMAGES}}/ssd/{{item}}.qcow2"
+  when: not disk_check.stat.exists

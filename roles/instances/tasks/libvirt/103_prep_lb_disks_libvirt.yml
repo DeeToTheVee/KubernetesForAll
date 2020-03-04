@@ -1,0 +1,14 @@
+---
+
+
+- name: "[Prep lb disks]: Check if disk has been initialised already"
+  stat:
+    path: "{{LIBVIRT_IMAGES}}/ssd/{{item}}.qcow2"
+  register: disk_check
+
+- name: "[Prep lb disks]: Copy LB disks"
+  copy:
+    src: "{{LIBVIRT_IMAGES}}/templates/lb-template.qcow2"
+    dest: "{{LIBVIRT_IMAGES}}/ssd/{{item}}.qcow2"
+    remote_src: yes
+  when: not disk_check.stat.exists

@@ -1,0 +1,14 @@
+---
+
+- name: "[Config]: Make directories"
+  file:
+    path: "{{item}}"
+    state: directory
+    recurse: yes
+    owner: root
+    group: root
+    mode: '0755'
+  with_items:
+    - "/var/log/kubernetes"
+    - "/etc/kubernetes/manifests"
+    - "/etc/kubernetes/policies"

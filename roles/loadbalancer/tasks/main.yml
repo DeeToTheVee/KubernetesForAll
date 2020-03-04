@@ -1,0 +1,26 @@
+---
+
+- name: Make SSL directories for LB
+  file:
+    path: "{{playbook_dir}}/generated_files/ssl/load_balancer/"
+    state: directory
+    recurse: yes
+    mode: '0755'
+  tags: create_loadbalancer
+
+# TODO: Needs work.
+#- include: 100_license.yml
+#  with_items: "{{groups['k8s-lbs']}}"
+
+#- include: 101_https.yml
+#  with_items: [ "k8s-controllers-lb" ]
+
+- include: 102_ssl.yml
+  with_items: [ "k8s-controllers-lb" ]
+
+#- include: 103_http.yml
+#  with_items: [ "k8s-controllers-lb" ]
+
+- include: 104_api.yml
+  with_items: [ "k8s-controllers-lb" ]
+

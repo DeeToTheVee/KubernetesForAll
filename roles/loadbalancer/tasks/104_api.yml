@@ -1,0 +1,32 @@
+---
+
+- name: "[Loadbalancer - api]: Delete k8s-api virtual service"
+  uri:
+    url: "https://{{LB_USER}}:{{LB_PASSWD}}@{{hostvars['k8s-controllers-lb']['ansible_host']}}/access/delvs?vs={{K8S_CONTROL_PLANE_LB_ADDRESS}}&port=*&prot=tcp"
+    method: GET
+    validate_certs: no
+  ignore_errors: yes
+  tags: create_loadbalancer
+
+- name: "[Loadbalancer - api]: Create k8s-api virtual service"
+  uri:
+    url: "https://{{LB_USER}}:{{LB_PASSWD}}@{{hostvars['k8s-controllers-lb']['ansible_host']}}/access/addvs?vs={{K8S_CONTROL_PLANE_LB_ADDRESS}}&port=*&prot=tcp&nickname=k8s-api"
+    method: GET
+    validate_certs: no
+  tags: create_loadbalancer
+
+- name: "[Loadbalancer - api]: Add real servers to k8s-api pool"
+  uri:
+    url: "https://{{LB_USER}}:{{LB_PASSWD}}@{{hostvars['k8s-controllers-lb']['ansible_host']}}/access/addrs?vs={{K8S_CONTROL_PLANE_LB_ADDRESS}}&port=*&weight=1000&prot=tcp&rs={{hostvars[item]['ansible_host']}}&rsport=*"
+    method: GET
+    validate_certs: no
+  with_items:
+    - "{{groups['k8s-controllers']}}"
+  tags: create_loadbalancer
+
+- name: "[Loadbalancer - api]: Add health checks to k8s-api pool"
+  uri:
+    url: "https://{{LB_USER}}:{{LB_PASSWD}}@{{hostvars['k8s-controllers-lb']['ansible_host']}}/access/modvs?vs={{K8S_CONTROL_PLANE_LB_ADDRESS}}&port=*&prot=tcp&CheckType=icmp&EnhancedHealthchecks=1&RsMinimum=1"
+    method: GET
+    validate_certs: no
+  tags: create_loadbalancer

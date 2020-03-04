@@ -1,0 +1,23 @@
+---
+
+- name: "[APT]: Add Docker apt signing key"
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: "[APT]: Add the apt repo to sources.d"
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
+    state: present
+
+- name: "[APT]: Install Docker packages"
+  apt:
+    name: "docker-ce=5:{{DOCKER_VERSION}}~3-0~ubuntu-bionic"
+    state: present
+    update_cache: yes
+    force: yes
+
+- name: "[APT]: Put Docker on hold"
+  dpkg_selections:
+    name: "docker-ce"
+    selection: hold
