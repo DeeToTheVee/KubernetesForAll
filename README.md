@@ -1,6 +1,5 @@
 # Kubernetes via Ansible
 
-## NEW README
 These playbooks are designed to help people who want a Kubernetes cluster and don't want to rely on the cloud providers to get one.
 The process is still in development and ETCD will soon be separated out from the Master Nodes to allow for better reliability.
 
