@@ -6,7 +6,7 @@ The process is still in development and ETCD will soon be separated out from the
 All you need to get going is 1 CentOS 8 machine capable of running VMs OR a collection of bare metal devices running CentOS 7.
 
 If you're going for the VM route, which is the most mature, then you don't really need to do much other than provide a server to user as the VM host.
-The playbooks will setup LibVirtD on the `builder` nodes and deploy the cluster. However, It's designed to work with on builder, not multiple.
+The playbooks will setup LibVirtD on the `builder` nodes and deploy the cluster. However for now it's designed to work with one builder, not multiple.
 I intend to improve on this soon with a new Golang Wrapper around virsh to provide a rest API (or find one if it exists) but it depends on time available.
 
 ## Version
