@@ -18,3 +18,9 @@
   tags:
     - common
     - selinux
+
+- include: 104_network.yml
+  when: ansible_hostname in groups['k8s-controllers'] or ansible_hostname in groups['k8s-workers'] or ansible_hostname in groups['k8s-lbs']
+  tags:
+    - common
+    - network

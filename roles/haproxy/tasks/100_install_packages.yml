@@ -21,10 +21,3 @@
   vars:
     packages:
       - haproxy
-      - NetworkManager
-
-- name: "[Install Packages] - Enable NetworkManager"
-  systemd:
-    name: NetworkManager
-    enabled: yes
-    state: started

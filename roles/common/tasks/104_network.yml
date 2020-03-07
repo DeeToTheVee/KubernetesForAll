@@ -1,0 +1,28 @@
+---
+
+- name: "[Networking]: Install NetworkManager package"
+  package:
+    name: NetworkManager
+    state: present
+  register: package_res
+  retries: 10
+  until: package_res is success
+
+- name: "[Networking] - Enable NetworkManager"
+  systemd:
+    name: NetworkManager
+    enabled: yes
+    state: started
+
+- name: "[Networking] - Get interfaces"
+  shell: nmcli con show | grep "{{ansible_default_ipv4.interface}}" | awk -F ' {2,}' '{print $1}'
+  register: interface_name
+
+- name: "[Networking] - Set static IP"
+  shell: 'nmcli con mod "{{interface_name.stdout}}" ipv4.method manual ipv4.address {{ansible_default_ipv4.address}}/24 ipv4.gateway {{ansible_default_ipv4.gateway}} ipv4.dns "8.8.4.4 8.8.8.8"'
+
+#- name: "[Networking] - Set default DNS"
+#  shell: '> /etc/resolv.conf && nmcli con mod "{{interface_name.stdout}}" ipv4.dns "8.8.8.8 8.8.4.4"'
+
+- name: "[Networking] - Reload network"
+  shell: "nmcli con down '{{interface_name.stdout}}' && nmcli con up '{{interface_name.stdout}}'"
