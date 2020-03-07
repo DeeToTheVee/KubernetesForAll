@@ -14,23 +14,6 @@
 #  delegate_to: localhost
 #  tags: install_weave
 
-- name: "[Kubeadm - Weave]: Copy weave.yml definition"
-  copy:
-    src: weave.yml
-    dest: /tmp/weave.yml
-    mode: '0644'
-#  when: check_weave.resources[0].status.phase != "Running"
-#  delegate_to: localhost
-  tags: install_weave
-
-- name: "[Kubeadm - Weave]: Apply Weave configuration"
-  command: "kubectl apply -f /tmp/weave.yml --record --kubeconfig=/etc/kubernetes/admin.conf"
-  register: weave_applied
-  run_once: true
-#  when: check_weave.resources[0].status.phase != "Running"
-#  delegate_to: localhost
-  tags: install_weave
-
 #- name: "[Kubeadm - Weave]: Apply Weave configuration"
 #  k8s:
 #    kubeconfig: "/etc/kubernetes/admin.conf"
@@ -42,6 +25,22 @@
 ##  when: check_weave.resources[0].status.phase != "Running"
 ##  delegate_to: localhost
 #  tags: install_weave
+
+- include: 101_firewall.yml
+  tags: install_weave
+
+- name: "[Kubeadm - Weave]: Copy weave.yml definition"
+  copy:
+    src: weave.yml
+    dest: /tmp/weave.yml
+    mode: '0644'
+  tags: install_weave
+
+- name: "[Kubeadm - Weave]: Apply Weave configuration"
+  command: "kubectl apply -f /tmp/weave.yml --record --kubeconfig=/etc/kubernetes/admin.conf"
+  register: weave_applied
+  run_once: true
+  tags: install_weave
 
 - name: "[Kubeadm - Weave]: Pausing for 1 minute to allow Weave to come up"
   pause:
