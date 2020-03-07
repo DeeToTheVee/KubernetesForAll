@@ -7,9 +7,21 @@
   register: storage_disk_check
 
 - name: "[Prep storage disks]: Create storage disk"
-  command: "qemu-img create -f qcow2 {{LIBVIRT_IMAGES}}/ssd/{{item}}-storage.qcow2 250G"
+  command: "qemu-img create -f raw {{LIBVIRT_IMAGES}}/ssd/{{item}}-storage.img 250G"
   when: not storage_disk_check.stat.exists
 
+- name: "[Prep storage disks]: Convert to qcow2"
+  command: "qemu-img convert -O qcow2 {{LIBVIRT_IMAGES}}/ssd/{{item}}-storage.img {{LIBVIRT_IMAGES}}/ssd/{{item}}-storage.qcow2"
+  when: not storage_disk_check.stat.exists
+
+- name: change the ownership
+  file:
+    state: file
+    path: "{{LIBVIRT_IMAGES}}/ssd/{{item}}-storage.qcow2"
+    owner: qemu
+    group: qemu
+    mode: '0644'
+
 - name: "[Prep storage disks]: Attach storage disk"
-  command: "virsh attach-disk {{item}} {{LIBVIRT_IMAGES}}/ssd/{{item}}-storage.qcow2 vdb --cache none"
+  command: "virsh attach-disk {{item}} {{LIBVIRT_IMAGES}}/ssd/{{item}}-storage.qcow2 --target vdb --cache none --io native --persistent"
   when: not storage_disk_check.stat.exists

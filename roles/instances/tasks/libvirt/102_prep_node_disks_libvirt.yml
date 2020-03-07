@@ -20,6 +20,6 @@
   command: "virt-resize --quiet --expand /dev/sda1 {{LIBVIRT_IMAGES}}/{{item}}.qcow2 {{LIBVIRT_IMAGES}}/{{item}}.new.image"
   when: not disk_check.stat.exists
 
-- name: "[Prep node disks]: Shink to dynamic disks to reserve space"
+- name: "[Prep node disks]: Shrink to dynamic disks to reserve space"
   command: "qemu-img convert -O qcow2 {{LIBVIRT_IMAGES}}/{{item}}.new.image {{LIBVIRT_IMAGES}}/ssd/{{item}}.qcow2"
   when: not disk_check.stat.exists

@@ -27,3 +27,8 @@
   file:
     path: "{{LIBVIRT_IMAGES}}/{{item}}.qcow2"
     state: absent
+
+- name: "[libvirtd - cleanup]: Remove the original storage disk files"
+  file:
+    path: "{{LIBVIRT_IMAGES}}/ssd/{{item}}-storage.img"
+    state: absent
