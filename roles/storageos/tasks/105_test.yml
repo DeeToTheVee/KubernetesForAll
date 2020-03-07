@@ -3,10 +3,12 @@
 - name: "[Test]: Checking StorageOS commands work"
   command: "storageos volume ls"
   register: storageos_check
+  ignore_errors: true
   delegate_to: localhost
 
 - name: "[Test]: Checking StorageOS commands work - output"
   debug:
     msg: "{{storageos_check.stdout_lines}}"
   when: storageos_check
+  ignore_errors: true
   delegate_to: localhost

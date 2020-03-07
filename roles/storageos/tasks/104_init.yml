@@ -1,26 +1,18 @@
 ---
 
-#TASK [storageos : [init]: Install StorageOS Operator onto K8S]
-# fatal:
-#  [k8s-worker-1 -> localhost]:
-#  FAILED! =>
-#  {
-#    "changed": true,
-#    "cmd": ["kubectl", "create", "-f", "/tmp/storageos-operator.yaml"],
-#    "delta": "0:00:00.173125",
-#    "end": "2020-03-03 23:51:01.612704",
-#    "msg": "non-zero return code",
-#    "rc": 1,
-#    "start": "2020-03-03 23:51:01.439579",
-#    "stderr": "The connection to the server localhost:8080 was refused - did you specify the right host or port?",
-#    "stderr_lines": ["The connection to the server localhost:8080 was refused - did you specify the right host or port?"],
-#    "stdout": "",
-#    "stdout_lines": []
-#  }
+- name: "[init]: Check for StorageOS CRDs"
+  shell: "kubectl get crds --kubeconfig /home/{{LOCAL_USER}}/.kube/config"
+  delegate_to: localhost
+  run_once: true
+  register: storage_crds_check
+  tags:
+    - install_storageos
 
 - name: "[init]: Install StorageOS Operator onto K8S"
-  command: "kubectl create -f /tmp/storageos-operator.yaml "
+  command: "kubectl create -f /tmp/storageos-operator.yml --kubeconfig /home/{{LOCAL_USER}}/.kube/config"
   delegate_to: localhost
+  run_once: true
+  when: storage_crds_check.stdout_lines|length == 0
   tags:
     - install_storageos
 
@@ -28,18 +20,41 @@
   pause:
     seconds: 10
   delegate_to: localhost
+  when: storage_crds_check.stdout_lines|length == 0
+  tags:
+    - install_storageos
+
+- name: "[init]: Check for StorageOS Secrets"
+  shell: "kubectl get secrets -n storageos-operator --kubeconfig /home/{{LOCAL_USER}}/.kube/config"
+  delegate_to: localhost
+  run_once: true
+  register: storage_secret_check
+  changed_when: storage_secret_check.stdout_lines|length == 0
   tags:
     - install_storageos
 
 - name: "[init]: Install StorageOS secret onto K8S"
-  command: "kubectl create -f /tmp/storageos-secret.yaml"
+  command: "kubectl create -f /tmp/storageos-secret.yml --kubeconfig /home/{{LOCAL_USER}}/.kube/config"
   delegate_to: localhost
+  run_once: true
+  when: "'storageos-api' not in storage_secret_check.stdout"
+  tags:
+    - install_storageos
+
+- name: "[init]: Check for StorageOS Install"
+  shell: "kubectl get StorageOSCluster -n storageos-operator --kubeconfig /home/{{LOCAL_USER}}/.kube/config"
+  delegate_to: localhost
+  run_once: true
+  register: storage_install_check
+  changed_when: storage_install_check.stdout_lines|length == 0
   tags:
     - install_storageos
 
 - name: "[init]: Install StorageOS onto K8S"
-  command: "kubectl create -f /tmp/storageos-install.yaml"
+  command: "kubectl create -f /tmp/storageos-install.yml --kubeconfig /home/{{LOCAL_USER}}/.kube/config"
   delegate_to: localhost
+  run_once: true
+  when: storage_install_check.stdout_lines|length == 0
   tags:
     - install_storageos
 

@@ -14,8 +14,8 @@
 
 - name: "[Config]: Fetch StorageOS Operator"
   get_url:
-    url: "https://github.com/storageos/go-cli/releases/download/{{STORAGEOS_CLI_VERSION}}/storageos_linux_amd64"
-    dest: /tmp/storageos-operator.yaml
+    url: "https://github.com/storageos/cluster-operator/releases/download/{{STORAGEOS_CLI_VERSION}}/storageos-operator.yaml"
+    dest: /tmp/storageos-operator.yml
     mode: '0755'
   register: download_storageos
   delegate_to: localhost
