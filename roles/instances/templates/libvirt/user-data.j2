@@ -16,7 +16,7 @@ users:
       - "{{SSH_PUB_KEY}}"
   - name: root
     lock-passwd: false
-    passwd: $1$SaltSalt$a751YJ4UdoFglLj8ifn4R0
+    passwd: {{SSH_PASSWD_SALT}}
     ssh-authorized-keys:
       - "{{SSH_PUB_KEY}}"
 
@@ -50,7 +50,6 @@ ssh_genkeytypes: ['ed25519', 'rsa']
 # in cloud.cfg in the template (which is centos for CentOS cloud images)
 #ssh_authorized_keys:
 #  - "{{SSH_PUB_KEY}}"
-#  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDB0fk2dVynQU5/qFRQbPNKNbtK+NvOeKY7gFEM/zIiLxPGhySgqFxTPerJqlY0MXinRanIoMGWG6TOBKm6cOUqF92InMCIbgqBmD/GwkSsE1CIQJkr8HXvhBBsQSghxuDNuK3FF75UviK0xElEAV1xWeVLwc3KAmKreyZFYqpxpKfbsZDdhQ6KqdtbguGbGUXn+6dM9yIGnpKLOxzKYrgc+nmTHaijvpLeWVxqJo+ut/nC+uRzXrwruZQjTWkheqOdCl/ANTMXF7iFzjm/MWLfbW/SvVPCmx8Y2nsOLVAckIr4QK3OWJh1GLnpSE4sXcSTk/cl4WS5t4nQgheZC5XZ root@c0.deetothevee.co.uk
 
 # set timezone for VM
 timezone: Europe/London
