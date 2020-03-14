@@ -13,3 +13,6 @@
     name: firewalld
     state: restarted
   when: add_zone
+
+- name: "[Firewall]: Fix for Forwarding Drop rule that Docker creates"
+  command: "iptables -P FORWARD ACCEPT"

@@ -26,9 +26,6 @@
 ##  delegate_to: localhost
 #  tags: install_weave
 
-- include: 101_firewall.yml
-  tags: install_weave
-
 - name: "[Kubeadm - Weave]: Copy weave.yml definition"
   copy:
     src: weave.yml

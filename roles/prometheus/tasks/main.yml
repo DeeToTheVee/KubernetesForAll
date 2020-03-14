@@ -1,0 +1,14 @@
+---
+
+- include: 100_fetch_prometheus.yml
+  tags:
+    - install_prometheus
+    - fetch_prometheus
+
+- include: 102_config.yml
+  tags:
+    - install_prometheus
+
+- include: 103_init.yml
+  tags:
+    - install_prometheus

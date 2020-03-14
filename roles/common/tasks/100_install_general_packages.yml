@@ -21,12 +21,11 @@
       - curl
       - vim
       - socat
-      - ca-certificates
 #      - python3-setuptools
 #      - python3-pip
 
 - name: "[Install Packages - General]: Install YUM specific packages"
-  package:
+  yum:
     name: "{{ packages }}"
     state: present
   register: package_res
@@ -46,7 +45,7 @@
   when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
 
 - name: "[Install Packages - General]: Install APT specific packages"
-  package:
+  apt:
     name: "{{ packages }}"
     state: present
   register: package_res
@@ -56,7 +55,9 @@
     packages:
       - aptitude
       - apt-transport-https
+      - ca-certificates
       - software-properties-common
+      - gnupg2
       - python-setuptools
       - python-pip
       - conntrack

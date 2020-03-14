@@ -4,5 +4,6 @@ libvirt_pools:
   - "hdd"
   - "usb"
   - "ssd"
+  - "storageos"
   - "iso"
   - "templates"

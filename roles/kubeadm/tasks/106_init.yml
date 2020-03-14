@@ -3,8 +3,13 @@
 ## Now, because we're trying to make this nice and simple, we initialised the first control-plane node with the defaults.
 ## After the first node is up, we copy the updated configs over to enable auditing etc then reload the kubelet.
 
+- name: "[Init]: Copy kubeadm config"
+  template:
+    src: "kubeadm-config.yml.j2"
+    dest: "/tmp/kubeadm-config.yml"
+
 - name: "[Init]: Initialise kubeadm on first node"
-  command: "kubeadm init --control-plane-endpoint \"{{K8S_CONTROL_PLANE_LB_ADDRESS}}:6443\" --upload-certs"
+  command: "kubeadm init --upload-certs --config=/tmp/kubeadm-config.yml"
   register: kubeadm_init
 
 - name: "[Init]: Set token facts"
@@ -12,13 +17,13 @@
     join_token: "{{ kubeadm_init.stdout | regex_search('((--token)\ [a-zA-Z0-9.]*)') }}"
     discovery_token: "{{ kubeadm_init.stdout | regex_search('(--discovery-token-ca-cert-hash)\ (sha256:[a-zA-Z0-9]*)') }}"
     control_token: "{{ kubeadm_init.stdout | regex_search('(-control-plane)\ (--certificate-key)\ [a-zA-Z0-9.]*') }}"
-  when: kubeadm_init
+  when: kubeadm_init.changed
 
 - name: "[Init]: Write Join Token out"
   copy:
     content: "kubeadm join {{hostvars[inventory_hostname]['ansible_host']}}:6443 {{join_token}} {{discovery_token}}"
     dest: /tmp/join_token
-  when: kubeadm_init
+  when: kubeadm_init.changed
   register: kubeadm_write_join_token
 
 # TODO: Token will expire so should delete this when done
@@ -34,7 +39,7 @@
   copy:
     content: "kubeadm join {{hostvars[inventory_hostname]['ansible_host']}}:6443 {{join_token}} {{discovery_token}} -{{control_token}}"
     dest: /tmp/control_plane_token
-  when: kubeadm_init
+  when: kubeadm_init.changed
   register: kubeadm_write_control_plane_join
 
 - name: "[Init]: Fetch Control Plane Token"
@@ -45,39 +50,35 @@
   when:
     - kubeadm_write_control_plane_join
 
-- name: "[Init]: Copy kubernetes policies"
-  copy:
-    src: "policies/{{item}}"
-    dest: "/etc/kubernetes/policies/{{item}}"
-  with_items:
-    - "audit-policy.yaml"
+#- name: "[Init]: Copy kubernetes configs"
+#  copy:
+#    src: "manifests/{{item}}"
+#    dest: "/etc/kubernetes/manifests/{{item}}"
+#  with_items:
+#    - "kube-scheduler.yaml"
+#    - "kube-controller-manager.yaml"
+#  when: kubeadm_init.changed
+#
+#- name: "[Init]: Copy Kubernetes configs' templates"
+#  template:
+#    src: "manifests/{{item}}.j2"
+#    dest: "/etc/kubernetes/manifests/{{item}}"
+#  with_items:
+##    - "kubeadm-config.yaml"
+#    - "kube-apiserver.yaml"
+#    - "etcd.yaml"
+#  when: kubeadm_init.changed
 
-- name: "[Init]: Copy kubernetes configs"
-  copy:
-    src: "manifests/{{item}}"
-    dest: "/etc/kubernetes/manifests/{{item}}"
-  with_items:
-    - "kube-scheduler.yaml"
-    - "kube-controller-manager.yaml"
+#- name: "[Init]: Reload Kubelet"
+#  service:
+#    name: kubelet
+#    state: restarted
+#  when: kubeadm_init.changed
 
-- name: "[Init]: Copy Kubernetes configs' templates"
-  template:
-    src: "manifests/{{item}}.j2"
-    dest: "/etc/kubernetes/manifests/{{item}}"
-  with_items:
-#    - "kubeadm-config.yaml"
-    - "kube-apiserver.yaml"
-    - "etcd.yaml"
-
-- name: "[Init]: Reload Kubelet"
-  service:
-    name: kubelet
-    state: restarted
-
-- name: "[Init]: Pausing for 4 minutes to allow the cluster to come up"
-  pause:
-    seconds: 240
-  when: kubeadm_init
+#- name: "[Init]: Pausing for 4 minutes to allow the cluster to come up"
+#  pause:
+#    seconds: 240
+#  when: kubeadm_init.changed
 
 #- name: "[Init]: Waiting for Ready state"
 #  wait_for:

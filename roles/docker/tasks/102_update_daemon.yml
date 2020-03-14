@@ -5,18 +5,20 @@
     src: daemon.json
     dest: /etc/docker/daemon.json
     mode: '0644'
+  register: docker_
   when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
 
-- name: "[Docker - Daemon]: Make sure docker is Started"
-  service:
-    name: docker
-    state: restarted
-  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+- name: "[Docker]: Make directories"
+  file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+    recurse: yes
+  tags:
+    - install_docker
 
 - name: "[Docker - Daemon]: Make sure docker is Started"
   systemd:
     name: docker
-    state: started
+    state: restarted
     enabled: yes
     daemon_reload: yes
-  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'

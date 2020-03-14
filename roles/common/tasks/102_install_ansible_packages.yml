@@ -32,3 +32,8 @@
       - python-docker
       - python-libvirt
   when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+
+- name: "[Install Packages - Ansible]: Install Python packages"
+  pip:
+    name: jsonnet

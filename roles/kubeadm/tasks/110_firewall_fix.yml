@@ -1,0 +1,21 @@
+---
+
+- name: "[Init]: Firewall fix pt1"
+  systemd:
+    name: "{{item}}"
+    state: restarted
+  with_items:
+    - kubelet
+    - docker
+
+- name: "[Init]: Firewall fix pt2"
+  command: "iptables --flush && sudo iptables -tnat --flush"
+  delegate_to: localhost
+
+- name: "[Init]: Firewall fix pt3"
+  systemd:
+    name: "{{item}}"
+    state: restarted
+  with_items:
+    - kubelet
+    - docker

@@ -10,10 +10,10 @@
     - install_storageos
     - configure_storageos_disks
 
-- include: 102_firewall.yml
-  tags:
-    - install_storageos
-    - firewall
+#- include: 102_firewall.yml
+#  tags:
+#    - install_storageos
+#    - firewall
 
 - include: 103_config.yml
   tags:

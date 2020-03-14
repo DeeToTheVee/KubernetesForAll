@@ -1,14 +1,16 @@
 ---
 
 - name: "[Test]: Checking StorageOS commands work"
-  command: "storageos volume ls"
+  command: "storageos -u{{STORAGEOS_USERNAME}} -p{{STORAGEOS_PASSWORD}} -H http://{{STORAGEOS_HOST}}:5705 volume ls"
   register: storageos_check
   ignore_errors: true
+  run_once: true
   delegate_to: localhost
 
 - name: "[Test]: Checking StorageOS commands work - output"
   debug:
     msg: "{{storageos_check.stdout_lines}}"
   when: storageos_check
+  run_once: true
   ignore_errors: true
   delegate_to: localhost

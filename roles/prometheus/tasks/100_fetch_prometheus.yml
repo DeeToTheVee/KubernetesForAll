@@ -1,0 +1,9 @@
+---
+
+- name: "[Fetch Prometheus]: Pull Repo"
+  git:
+    repo: "https://github.com/coreos/kube-prometheus.git"
+    dest: "/tmp/prometheus-operator/"
+
+- name: "[Fetch Prometheus]: Fetch Prometheus"
+  command: ""

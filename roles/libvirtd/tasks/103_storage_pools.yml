@@ -26,6 +26,14 @@
     group: qemu
   with_items: "{{libvirt_pools}}"
 
+- name: "[Storage Pools] - Create build directory"
+  file:
+    path: "{{ LIBVIRT_IMAGES }}/build"
+    state: directory
+    recurse: yes
+    owner: qemu
+    group: qemu
+
 - name: "[Storage Pools] - Create Pools"
   virt_pool:
     command: define

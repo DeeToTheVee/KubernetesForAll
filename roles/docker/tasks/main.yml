@@ -1,13 +1,5 @@
 ---
 
-- name: "[Docker]: Make directories"
-  file:
-    path: /etc/systemd/system/docker.service.d
-    state: directory
-    recurse: yes
-  tags:
-    - install_docker
-
 - include: 101_yum.yml
   when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
   tags:

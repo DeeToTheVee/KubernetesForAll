@@ -11,10 +11,10 @@
     - storage
     - nfs
 
-- include: 103_firewall.yml
-  tags:
-    - storage
-    - nfs
+#- include: 103_firewall.yml
+#  tags:
+#    - storage
+#    - nfs
 
 - include: 104_service.yml
   tags:

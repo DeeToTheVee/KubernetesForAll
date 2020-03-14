@@ -9,6 +9,8 @@
   with_items:
     - storageos-install
     - storageos-secret
+  tags:
+    - install_storageos
 
 - name: "[Config]: Fetch StorageOS Operator"
   get_url:
@@ -17,3 +19,5 @@
     mode: '0755'
   register: download_storageos
   delegate_to: localhost
+  tags:
+    - install_storageos

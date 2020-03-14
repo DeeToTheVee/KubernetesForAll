@@ -12,3 +12,8 @@
     - "/var/log/kubernetes"
     - "/etc/kubernetes/manifests"
     - "/etc/kubernetes/policies"
+
+- name: "[Init]: Copy kubernetes policies"
+  copy:
+    src: "policies/audit-policy.yaml"
+    dest: "/etc/kubernetes/policies/audit-policy.yaml"

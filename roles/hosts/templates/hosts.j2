@@ -8,6 +8,8 @@ ff00::0 ip6-mcastprefix
 ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 
+{{K8S_CONTROL_PLANE_LB_ADDRESS}} {{LOADBALANCER_FQDN}}
+
 {% for host in groups['k8s-lbs'] %}
 {{hostvars[host]['ansible_host']}} {{host}}
 {% endfor %}

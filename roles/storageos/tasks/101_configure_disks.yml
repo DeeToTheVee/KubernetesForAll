@@ -8,6 +8,7 @@
 
 - name: "[Configure disks]: Create a new primary partition of type LVM"
   shell: "parted -s /dev/vdb mklabel msdos mkpart primary ext4 0% 100%"
+  when: storageos_disk_check.stat.exists is defined and not storageos_disk_check.stat.exists and not hostvars[ansible_hostname]['REMOTE_INSTANCE']
 #  parted:
 #    device: /dev/vdb
 #    number: 1
@@ -15,7 +16,6 @@
 #    part_start: 0%
 #    part_end: 100%
 #    part_type: primary
-  when: not storageos_disk_check.stat.exists and not hostvars[ansible_hostname]['REMOTE_INSTANCE']
 
 #- name: "[Configure disks]: Create a volume group on top of /dev/vdb1"
 #  lvg:
@@ -34,7 +34,7 @@
   filesystem:
     fstype: ext4
     dev: /dev/vdb1
-  when: not storageos_disk_check.stat.exists and not hostvars[ansible_hostname]['REMOTE_INSTANCE']
+  when: storageos_disk_check.stat.exists is defined and not storageos_disk_check.stat.exists and not hostvars[ansible_hostname]['REMOTE_INSTANCE']
 
 - name: "[Configure disks]: Create the storage os directory"
   file:
@@ -44,7 +44,6 @@
     owner: root
     group: root
     mode: '0755'
-  when: not storageos_disk_check.stat.exists and not hostvars[ansible_hostname]['REMOTE_INSTANCE']
 
 - name: "[Configure disks]: Mount StorageOS drive"
   mount:
@@ -53,4 +52,4 @@
     fstype: ext4
     opts: rw
     state: present
-  when: not storageos_disk_check.stat.exists and not hostvars[ansible_hostname]['REMOTE_INSTANCE']
+  when: storageos_disk_check.stat.exists is defined and not storageos_disk_check.stat.exists and not hostvars[ansible_hostname]['REMOTE_INSTANCE']

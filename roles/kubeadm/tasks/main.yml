@@ -29,9 +29,9 @@
   tags:
     - kubeadm_initialise
 
-- include: 105_firewall.yml
-  tags:
-    - kubeadm_initialise
+#- include: 105_firewall.yml
+#  tags:
+#    - kubeadm_initialise
 
 - include: 106_init.yml
   when: not kubeadm_check.stat.exists and initialise_kubeadm == true
@@ -52,3 +52,7 @@
   when: not kubeadm_check.stat.exists and node_type|default("skip") == "worker" and initialise_kubeadm == false
   tags:
     - kubeadm_initialise
+#
+#- include: 110_firewall_fix.yml
+#  tags:
+#    - kubeadm_initialise

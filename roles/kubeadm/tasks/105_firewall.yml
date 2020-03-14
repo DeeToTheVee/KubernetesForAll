@@ -23,7 +23,18 @@
     - 30000-32767/tcp
   when: node_type|default("skip") == "worker"
 
+- name: "[Firewall]: Enable firewall rules for Weave"
+  firewalld:
+    port: "{{item}}"
+    permanent: yes
+    state: enabled
+    zone: public
+  with_items:
+    - 6781-6784/tcp
+    - 6783-6784/udp
+
 - name: "[Firewall]: Restart firewall"
   systemd:
     name: firewalld
     state: restarted
+

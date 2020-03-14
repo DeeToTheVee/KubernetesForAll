@@ -16,9 +16,9 @@
   tags:
     - install_storageos
 
-- name: "[init]: StorageOS Operator can take a minute to come up..."
+- name: "[init]: StorageOS Operator can take a few seconds to come up..."
   pause:
-    seconds: 60
+    seconds: 10
   delegate_to: localhost
   when: storage_crds_check.stdout_lines|length == 0
   tags:
@@ -64,24 +64,3 @@
   delegate_to: localhost
   tags:
     - install_storageos
-
-- name: "[init]: Setup StorageOS StorageClass"
-  k8s:
-    state: present
-    validate_certs: no
-    kubeconfig: "/home/{{LOCAL_USER}}/.kube/config"
-    definition:
-      apiVersion: storage.k8s.io/v1
-      kind: StorageClass
-      metadata:
-        labels:
-          app: storageos
-        name: permanent
-      parameters:
-        csi.storage.k8s.io/fstype: ext4
-        pool: default
-      provisioner: storageos
-      reclaimPolicy: Retain
-      volumeBindingMode: Immediate
-  delegate_to: localhost
-  run_once: yes
