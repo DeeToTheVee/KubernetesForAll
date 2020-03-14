@@ -13,7 +13,6 @@
   become: true
   remote_user: "{{BECOME_USER}}"
   roles:
-    - { role: common }
     - { role: haproxy, node_group: "k8s-controllers" }
 
 - name: "[Control Plane HAProxy]: Configure Workers Loadbalancer"
@@ -21,5 +20,4 @@
   become: true
   remote_user: "{{BECOME_USER}}"
   roles:
-    - { role: common }
     - { role: haproxy, node_group: "k8s-workers" }

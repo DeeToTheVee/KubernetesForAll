@@ -1,0 +1,28 @@
+---
+
+
+- name: "[Prepare Nodes]: Prepare cluster instances"
+  hosts: k8s-workers
+  become: true
+  remote_user: "{{BECOME_USER}}"
+  roles:
+    - { role: hosts }
+    - { role: common, ansible_server: false }
+    - { role: docker }
+    - { role: firewall }
+
+
+- name: "[Build Cluster]: Initialise worker nodes"
+  hosts: k8s-workers
+  become: true
+  remote_user: "{{BECOME_USER}}"
+  roles:
+    - { role: kubeadm, initialise_kubeadm: false, node_type: "worker" }
+
+
+- name: "[LocalTasks - Instances]: Setup StorageOS"
+  hosts: k8s-workers
+  become: true
+  remote_user: "{{BECOME_USER}}"
+  roles:
+    - { role: storageos }

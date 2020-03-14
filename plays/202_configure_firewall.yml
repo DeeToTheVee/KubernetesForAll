@@ -1,8 +1,0 @@
----
-
-- name: "[Prepare Nodes]: Configure firewall"
-  hosts: k8s-controllers,k8s-workers,k8s-lbs
-  become: true
-  remote_user: "{{BECOME_USER}}"
-  roles:
-    - { role: firewall }

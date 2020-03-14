@@ -1,20 +1,27 @@
 ---
 
+##Install by phase
 # Local Tasks
-- import_playbook: plays/101_configure_ansible_node.yml
-- import_playbook: plays/102_configure_deployment_nodes.yml
-- import_playbook: plays/103_deploy_instances.yml
-- import_playbook: plays/104_configure_loadbalancer.yml
+- import_playbook: 101_configure_ansible_node.yml
+- import_playbook: 102_configure_deployment_nodes.yml
+- import_playbook: 103_deploy_instances.yml
 
 # Preparation Tasks
-- import_playbook: plays/201_prepare_nodes.yml
-- import_playbook: plays/202_configure_firewall.yml
+- import_playbook: 201_prepare_nodes.yml
+- import_playbook: 202_configure_loadbalancer.yml
 #- import_playbook: plays/203_configure_storage.yml
 
 # Building Cluster Tasks
-- import_playbook: plays/301_initialise_cluster.yml
-- import_playbook: plays/302_add_control_nodes.yml
-- import_playbook: plays/303_add_worker_nodes.yml
-- import_playbook: plays/304_setup_storageos.yml
+- import_playbook: 301_initialise_cluster.yml
+- import_playbook: 302_add_control_nodes.yml
+- import_playbook: 303_add_worker_nodes.yml
+- import_playbook: 304_setup_storageos.yml
 
-#- import_playbook: 999_post_install_tasks.yml
+## Uncomment to install by HostGroups rather than by phase.
+#- import_playbook: 01_localhost.yml
+#- import_playbook: 02_builders.yml
+#- import_playbook: 03_k8s-lbs.yml
+#- import_playbook: 04_k8s-controllers.yml
+#- import_playbook: 05_k8s-workers.yml
+
+- import_playbook: 999_post_install_tasks.yml

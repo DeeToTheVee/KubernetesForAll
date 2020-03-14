@@ -1,0 +1,27 @@
+---
+
+
+- name: "[Prepare Nodes]: Prepare cluster instances"
+  hosts: k8s-controllers
+  become: true
+  remote_user: "{{BECOME_USER}}"
+  roles:
+    - { role: hosts }
+    - { role: common, ansible_server: false }
+    - { role: docker }
+    - { role: firewall }
+
+- name: "[Build Cluster]: Initialise first control plane node"
+  hosts: "{{groups['k8s-controllers'][0]}}"
+  become: true
+  remote_user: "{{BECOME_USER}}"
+  roles:
+    - { role: kubeadm, initialise_kubeadm: true }
+    - { role: weave, initialise_kubeadm: true }
+
+- name: "[Build Cluster]: Initialise other control plane nodes"
+  hosts: k8s-controllers
+  become: true
+  remote_user: "{{BECOME_USER}}"
+  roles:
+    - { role: kubeadm, initialise_kubeadm: false, node_type: "controller" }

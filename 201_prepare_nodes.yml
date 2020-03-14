@@ -1,14 +1,15 @@
 ---
 
-- name: "[Prepare Nodes]: Prepare cluster instances"
+- name: "[Prepare Nodes]: Install initial packages, configure Hosts and Firewall"
   hosts: k8s-controllers, k8s-workers, k8s-lbs
   become: true
   remote_user: "{{BECOME_USER}}"
   roles:
-    - hosts
     - { role: common, ansible_server: false }
+    - { role: hosts }
+    - { role: firewall }
 
-- name: "[Prepare Nodes]: Prepare cluster instances"
+- name: "[Prepare Nodes]: Install Docker"
   hosts: k8s-controllers, k8s-workers
   become: true
   remote_user: "{{BECOME_USER}}"

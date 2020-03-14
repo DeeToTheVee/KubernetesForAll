@@ -1,0 +1,22 @@
+---
+
+- name: "[LocalTasks - Deployment Nodes]: Install packages required for master host to build instances"
+  hosts: builders
+  become: true
+  remote_user: "{{LOCAL_USER}}"
+  roles:
+    - { role: common }
+
+- name: "[LocalTasks - Deployment Nodes]: Setup LibvirtD/KVM on builders"
+  hosts: builders
+  become: true
+  remote_user: "{{BECOME_USER}}"
+  roles:
+    - { role: libvirtd }
+
+- name: "[LocalTasks - Instances]: Setup Instances"
+  hosts: builders
+  become: true
+  remote_user: "{{BECOME_USER}}"
+  roles:
+    - { role: instances }

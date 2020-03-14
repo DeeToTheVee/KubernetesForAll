@@ -1,0 +1,10 @@
+---
+
+- name: "Post Install Tasks"
+  hosts: localhost
+  remote_user: "{{LOCAL_USER}}"
+  roles:
+    - helm
+    - istio
+    - kube-prometheus
+    - flux

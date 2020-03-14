@@ -1,0 +1,20 @@
+---
+
+- name: "[Control Plane HAProxy]: Configure Control-Plane Loadbalancer"
+  hosts: k8s-controllers-lb
+  become: true
+  remote_user: "{{BECOME_USER}}"
+  roles:
+    - { role: hosts }
+    - { role: common, ansible_server: false }
+    - { role: haproxy, node_group: "k8s-controllers" }
+
+- name: "[Control Plane HAProxy]: Configure Workers Loadbalancer"
+  hosts: k8s-workers-lb
+  become: true
+  remote_user: "{{BECOME_USER}}"
+  roles:
+    - { role: hosts }
+    - { role: common, ansible_server: false }
+    - { role: firewall }
+    - { role: haproxy, node_group: "k8s-workers" }
