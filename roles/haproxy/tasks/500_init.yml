@@ -19,5 +19,6 @@
   wait_for:
     host: "{{ K8S_CONTROL_PLANE_LB_ADDRESS }}"
     port: 6443
+  when: node_group == 'k8s-controllers'
   tags:
     - install_haproxy

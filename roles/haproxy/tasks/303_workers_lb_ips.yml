@@ -1,0 +1,14 @@
+---
+
+- set_fact:
+    K8S_WORKERS_LB_ADDRESS: "{{K8S_WORKERS_LB_NETWORK}}.{{item}}"
+
+- name: "[Networking] - Get interfaces - Workers"
+  shell: nmcli con show | grep "{{ansible_default_ipv4.interface}}" | awk -F ' {2,}' '{print $1}'
+  register: interface_name
+  when: K8S_WORKERS_LB_ADDRESS not in ansible_all_ipv4_addresses
+
+- name: "[Networking] - Create VIP Interface - {{K8S_WORKERS_LB_ADDRESS}} - Workers"
+  shell: "nmcli con modify '{{interface_name.stdout}}' +ipv4.addresses {{ K8S_WORKERS_LB_ADDRESS }}/24 && nmcli con mod '{{interface_name.stdout}}' ipv4.routes '192.168.0.0/24 {{ K8S_WORKERS_LB_ADDRESS }}'"
+  register: ip_configured
+  when: K8S_WORKERS_LB_ADDRESS not in ansible_all_ipv4_addresses

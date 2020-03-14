@@ -1,0 +1,23 @@
+---
+
+- include: 301_controllers_lb.yml
+  when: node_group == 'k8s-controllers'
+
+- include: 302_workers_lb_storageos.yml
+  when: node_group == 'k8s-workers'
+
+- name: "[Networking] - Reload network - Workers"
+  shell: "nmcli con down '{{interface_name.stdout}}' && nmcli con up '{{interface_name.stdout}}'"
+  when:
+    - ip_configured.changed
+    - node_group == 'k8s-workers'
+
+- include: 303_workers_lb_ips.yml
+  with_sequence: "{{K8S_WORKERS_LB_RANGE}}"
+  when: node_group == 'k8s-workers'
+
+- name: "[Networking] - Reload network - Workers"
+  shell: "nmcli con down '{{interface_name.stdout}}' && nmcli con up '{{interface_name.stdout}}'"
+  when:
+    - ip_configured.changed
+    - node_group == 'k8s-workers'

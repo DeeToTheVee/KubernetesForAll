@@ -4,18 +4,18 @@
   tags:
     - install_haproxy
 
-- include: 101_configs.yml
+- include: 200_configs.yml
   tags:
     - install_haproxy
 
-- include: 102_network.yml
+- include: 300_network.yml
   tags:
     - install_haproxy
 
-- include: 103_firewall.yml
-  tags:
-    - install_haproxy
+#- include: 400_firewall.yml
+#  tags:
+#    - install_haproxy
 
-- include: 104_init.yml
+- include: 500_init.yml
   tags:
     - install_haproxy

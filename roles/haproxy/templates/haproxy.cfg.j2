@@ -1,4 +1,3 @@
-
 global
     maxconn 50000
     log /dev/log local0
@@ -13,7 +12,15 @@ defaults
     mode tcp
     option tcplog
     maxconn 3000
-frontend k8s-controllers-lb
+listen stats
+    bind *:8404
+    mode http
+    stats enable
+    stats uri /monitor
+    stats refresh 5s
+    stats auth {{LB_USER}}:{{LB_PASSWD}}
+{% if node_group == 'k8s-controllers' %}
+frontend k8s-controllers
     bind {{K8S_CONTROL_PLANE_LB_ADDRESS}}:6443
     default_backend k8s-controllers
 backend k8s-controllers
@@ -23,9 +30,59 @@ backend k8s-controllers
 {% for item in groups[node_group] %}
     server {{ hostvars[item]['inventory_hostname'] }} {{ hostvars[item]['ansible_host'] }}:6443 check port 6443
 {% endfor %}
-listen stats
-    bind *:8404
-    stats enable
-    stats uri /monitor
-    stats refresh 5s
-    stats auth {{LB_USER}}:{{LB_PASSWD}}
+{% else %}
+
+frontend storageos
+    bind {{STORAGEOS_HOST}}:5705
+    default_backend storageos
+backend storageos
+    balance roundrobin
+    mode tcp
+    option tcp-check
+{% for item in groups[node_group] %}
+{% if not hostvars[item]['REMOTE_INSTANCE'] %}
+    server {{ hostvars[item]['inventory_hostname'] }} {{ hostvars[item]['ansible_host'] }}:5705 check port 5705
+{% endif %}
+{% endfor %}
+
+frontend alertmanager
+    bind 192.168.0.150:9093
+    default_backend alertmanager
+backend alertmanager
+    balance roundrobin
+    mode tcp
+    option tcp-check
+{% for item in groups[node_group] %}
+{% if not hostvars[item]['REMOTE_INSTANCE'] %}
+    server {{ hostvars[item]['inventory_hostname'] }} {{ hostvars[item]['ansible_host'] }}:30903 check port 30903
+{% endif %}
+{% endfor %}
+
+frontend grafana
+    bind 192.168.0.150:3000
+    default_backend grafana
+backend grafana
+    balance roundrobin
+    mode tcp
+    option tcp-check
+{% for item in groups[node_group] %}
+{% if not hostvars[item]['REMOTE_INSTANCE'] %}
+    server {{ hostvars[item]['inventory_hostname'] }} {{ hostvars[item]['ansible_host'] }}:30904 check port 30904
+{% endif %}
+{% endfor %}
+
+frontend prometheus
+    bind 192.168.0.150:9090
+    default_backend prometheus
+backend prometheus
+    balance roundrobin
+    mode tcp
+    option tcp-check
+
+{% for item in groups[node_group] %}
+{% if not hostvars[item]['REMOTE_INSTANCE'] %}
+    server {{ hostvars[item]['inventory_hostname'] }} {{ hostvars[item]['ansible_host'] }}:30905 check port 30905
+{% endif %}
+{% endfor %}
+{% endif %}
+

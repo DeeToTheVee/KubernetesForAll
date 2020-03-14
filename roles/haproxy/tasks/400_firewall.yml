@@ -1,14 +1,16 @@
 ---
 
-- name: "[Firewall]: Enable firewall rules for Weave"
+- name: "[Firewall]: Enable firewall rules"
   firewalld:
     port: "{{item}}"
     permanent: yes
     state: enabled
     zone: public
   with_items:
-    - 6781-6784/tcp
-    - 6783-6784/udp
+    - 6443/tcp
+    - 8404/tcp
+  tags:
+    - install_haproxy
 
 - name: "[Firewall]: Restart firewall"
   systemd:

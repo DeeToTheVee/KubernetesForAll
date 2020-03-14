@@ -1,0 +1,21 @@
+---
+
+- name: "[Networking] - Get interfaces - StorageOS VIP"
+  shell: nmcli con show | grep "{{ansible_default_ipv4.interface}}" | awk -F ' {2,}' '{print $1}'
+  register: interface_name
+  when:
+    - STORAGEOS_HOST not in ansible_all_ipv4_addresses
+    - node_group == 'k8s-workers'
+
+- name: "[Networking] - Create VIP Interface - StorageOS VIP"
+  shell: "nmcli con modify '{{interface_name.stdout}}' +ipv4.addresses {{ STORAGEOS_HOST }}/24 && nmcli con mod '{{interface_name.stdout}}' ipv4.routes '192.168.0.0/24 {{ STORAGEOS_HOST }}'"
+  register: ip_configured
+  when:
+    - STORAGEOS_HOST not in ansible_all_ipv4_addresses
+    - node_group == 'k8s-workers'
+
+#- name: "[Networking] - Reload network - StorageOS VIP"
+#  shell: "nmcli con down '{{interface_name.stdout}}' && nmcli con up '{{interface_name.stdout}}'"
+#  when:
+#    - ip_configured.changed
+#    - node_group == 'k8s-workers'

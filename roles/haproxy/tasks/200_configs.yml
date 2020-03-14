@@ -6,11 +6,6 @@
     dest: /etc/haproxy/haproxy.cfg.orig
     remote_src: true
 
-#- name: "[Configs] - Set NodeGroup to controllers"
-#  set_fact:
-#    node_group: groups['k8s-controllers']
-#  when: node_type|default("skip") == "controller"
-
 - name: "[Configs] - Enable HAProxy"
   copy:
     src: haproxy
@@ -24,10 +19,12 @@
     mode: 0644
   when: node_group == 'k8s-controllers'
 
-#- name: "[Configs] - Set NodeGroup to controllers"
-#  set_fact:
-#    node_group: groups['k8s-workers']
-#  when: node_type|default("skip") == "worker"
+- name: "[Configs] - Create new worker haproxy.cfg"
+  template:
+    src: templates/haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    mode: 0644
+  when: node_group == 'k8s-workers'
 
 - name: "[Configs] - Update /etc/rsyslog.conf"
   lineinfile:
