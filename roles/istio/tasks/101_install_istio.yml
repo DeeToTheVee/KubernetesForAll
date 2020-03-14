@@ -1,0 +1,98 @@
+---
+
+- name: "[Install Istio]: Enable Istio Helm Repo"
+  command: "helm repo add istio.io https://storage.googleapis.com/istio-release/releases/{{ISTIO_VERSION}}/charts/"
+
+- name: "[Install Istio]: Create istio-system namespace"
+  k8s:
+    state: present
+    validate_certs: no
+    kubeconfig: "/home/{{LOCAL_USER}}/.kube/config"
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: istio-system
+
+- name: "[Install Istio]: Update Helm repo"
+  command: "helm repo update"
+
+- name: "[Install Istio]: Generate Istio Init Helm template"
+  shell: "helm template install/kubernetes/helm/istio-init --name istio-init --namespace istio-system --set gateways.istio-ingressgateway.type=NodePort > /tmp/istio-init.yml"
+  args:
+    chdir: "/opt/istio-{{ISTIO_VERSION}}"
+    creates: /tmp/istio-init.yml
+  become: yes
+
+- name: "[Install Istio]: Apply Istio Init Helm template"
+  k8s:
+    state: present
+    validate_certs: no
+    kubeconfig: "/home/{{LOCAL_USER}}/.kube/config"
+    namespace: istio-system
+    src: /tmp/istio-init.yml
+
+#- name: "[Install Istio]: Apply Istio Init Helm template"
+#  shell: "kubectl apply -f /tmp/isto-init.yml"
+
+- name: "[Install Istio]: Pause for 40 seconds for Istio CRDs to be added"
+  pause:
+    seconds: 40
+
+- name: "[Istio - Install Istio]: Check Istio CRDs"
+  k8s_info:
+    kubeconfig: "/home/{{LOCAL_USER}}/.kube/config"
+    api_version: v1
+    kind: CustomResourceDefinition
+    namespace: istio-system
+  register: check_istio_crd
+
+#- name: "[Install Istio]: Output results of Istio CRDs"
+#  debug:
+#    msg: "{{check_istio_crd}}"
+
+- name: "[Install Istio]: Generate Istio Helm template"
+  shell: "helm template install/kubernetes/helm/istio --name istio --namespace istio-system --set gateways.istio-ingressgateway.type=NodePort > /tmp/istio-deploy.yml"
+  args:
+    chdir: "/opt/istio-{{ISTIO_VERSION}}"
+    creates: /tmp/istio-deploy.yml
+  become: yes
+
+- name: "[Install Istio]: Apply Istio Helm template"
+  k8s:
+    state: present
+    validate_certs: no
+    kubeconfig: "/home/{{LOCAL_USER}}/.kube/config"
+    namespace: istio-system
+    src: /tmp/istio-deploy.yml
+
+
+- name: "[Install Istio]: Pause for 80 seconds for istio to come up"
+  pause:
+    seconds: 80
+#- name: "[Install Istio]: Apply Istio Helm template"
+#  shell: "kubectl apply -f /tmp/istio-deploy.yml"
+
+- name: "[Install Istio]: Check Istio Services"
+  k8s_info:
+    kubeconfig: "/home/{{LOCAL_USER}}/.kube/config"
+    api_version: v1
+    kind: Service
+    namespace: istio-system
+  register: check_istio_svc
+
+#- name: "[Install Istio]: Output results of Istio Services"
+#  debug:
+#    msg: "{{check_istio_svc}}"
+
+- name: "[Install Istio]: Check Istio Pods"
+  k8s_info:
+    kubeconfig: "/home/{{LOCAL_USER}}/.kube/config"
+    api_version: v1
+    kind: Pod
+    namespace: istio-system
+  register: check_istio_po
+
+#- name: "[Install Istio]: Output results of Istio Pods"
+#  debug:
+#    msg: "{{check_istio_po}}"

@@ -1,0 +1,31 @@
+---
+
+- name: "[Init]: Add Volumes for Grafana"
+  k8s:
+    state: present
+    validate_certs: no
+    kubeconfig: "/home/{{LOCAL_USER}}/.kube/config"
+    src: "{{role_path}}/files/manifests/custom-volumes/grafana-pvc.yaml"
+
+- name: "[Init]: Add Kube-Prometheus CRDs and Operators"
+  k8s:
+    state: present
+    validate_certs: no
+    kubeconfig: "/home/{{LOCAL_USER}}/.kube/config"
+    src: "{{item}}"
+  with_fileglob:
+    - "{{role_path}}/files/manifests/setup/*.yaml"
+
+- name: "[Init]: Add Prometheus, Grafana and AlertManager"
+  k8s:
+    state: present
+    validate_certs: no
+    kubeconfig: "/home/{{LOCAL_USER}}/.kube/config"
+    src: "{{item}}"
+  ignore_errors: true
+  with_fileglob:
+    - "{{role_path}}/files/manifests/*.yaml"
+
+- name: "[Init]: Waiting for 60 seconds..."
+  pause:
+    seconds: 60

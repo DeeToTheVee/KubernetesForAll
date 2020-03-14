@@ -1,0 +1,45 @@
+---
+- name: "[Init]: Prepare flux"
+  command: "/usr/local/bin/fluxctl install \
+  --git-user={{FLUX_GIT_USER}} \
+  --git-email={{FLUX_GIT_EMAIL}} \
+  --git-url={{FLUX_GIT_REPO}} \
+  --git-path={{FLUX_MONITOR_PATHS | join(',') }} \
+  --namespace=flux"
+  register: flux_prep
+
+- name: "[Init]: Write flux configs out"
+  copy:
+    content: "{{flux_prep.stdout}}"
+    dest: /tmp/flux.yml
+
+- name: "[Init]: Initialise flux"
+  k8s:
+    state: present
+    validate_certs: no
+    kubeconfig: "/home/{{LOCAL_USER}}/.kube/config"
+    src: "/tmp/flux.yml"
+
+- name: "[Init]: Wait for flux for 40 seconds..."
+  pause:
+    seconds: 40
+
+- name: "[Init]: ***Fetching SSH ID - fluxctl identity --k8s-fwd-ns flux***"
+  command: "fluxctl identity --k8s-fwd-ns flux"
+  register: flux_ssh_id
+
+- name: "[Init]: ***Take note of the SSH ID - fluxctl identity --k8s-fwd-ns flux***"
+  debug:
+    var: flux_ssh_id.stdout
+
+- name: "[Init]: ***!!ADD THE ID ABOVE TO YOUR GIT ACCOUNT NOW!!***"
+  pause:
+    seconds: 120
+
+- name: "[Init]: Syncing repo..."
+  command: "fluxctl sync --k8s-fwd-ns flux"
+  register: flux_sync
+
+- name: "[Init]: Sync output"
+  debug:
+    var: flux_sync.stdout

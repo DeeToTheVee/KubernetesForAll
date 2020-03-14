@@ -1,0 +1,12 @@
+---
+
+- name: "[Configure Namespaces]: Create namespace for flux"
+  k8s:
+    state: present
+    validate_certs: no
+    kubeconfig: "/home/{{LOCAL_USER}}/.kube/config"
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: flux
