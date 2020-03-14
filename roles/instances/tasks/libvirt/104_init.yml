@@ -20,7 +20,7 @@
             --import --name {{item}} \
             --memory {{hostvars[item]['MEMORY']}} --vcpus {{hostvars[item]['CPU']}} --cpu host \
             --disk {{LIBVIRT_IMAGES}}/ssd/{{item}}.qcow2,format=qcow2,bus=virtio \
-            --disk {{LIBVIRT_IMAGES}}/{{item}}-cidata.iso,device=cdrom \
+            --disk {{LIBVIRT_IMAGES}}/build/{{item}}-cidata.iso,device=cdrom \
             --network bridge=br0,model=virtio,mac={{hostvars[item]['INSTANCE_MAC']}} \
             --os-type=linux \
             --os-variant=centos7.0 \

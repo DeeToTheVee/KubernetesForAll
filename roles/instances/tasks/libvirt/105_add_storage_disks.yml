@@ -1,27 +1,32 @@
 ---
 
 ##Workers only
-- name: "[Prep storage disks]: Check if storage disk has been initialised already"
+- name: "[Prep storage disks - {{item}}]: Check if storage disk has been initialised already"
   stat:
-    path: "{{LIBVIRT_IMAGES}}/ssd/{{item}}-storage.qcow2"
+    path: "{{LIBVIRT_IMAGES}}/storageos/{{item}}-storage.qcow2"
   register: storage_disk_check
 
-- name: "[Prep storage disks]: Create storage disk"
-  command: "qemu-img create -f raw {{LIBVIRT_IMAGES}}/ssd/{{item}}-storage.img 250G"
-  when: not storage_disk_check.stat.exists
+#- name: "[Prep storage disks - {{item}}]: Create storage disk"
+#  command: "qemu-img create -f raw {{LIBVIRT_IMAGES}}/build/{{item}}-storage.img 250G"
+#  when: not storage_disk_check.stat.exists
 
-- name: "[Prep storage disks]: Convert to qcow2"
-  command: "qemu-img convert -O qcow2 {{LIBVIRT_IMAGES}}/ssd/{{item}}-storage.img {{LIBVIRT_IMAGES}}/ssd/{{item}}-storage.qcow2"
-  when: not storage_disk_check.stat.exists
+- name: "[Prep storage disks - {{item}}]: Create storage disk"
+  command: "virsh vol-create-as --pool storageos --name {{item}}-storage.qcow2 --capacity 150G --format qcow2 --allocation 1G --prealloc-metadata"
+  when: storage_disk_check.stat.exists is defined and not storage_disk_check.stat.exists
+#
+#- name: "[Prep storage disks - {{item}}]: Convert to qcow2"
+#  command: "qemu-img convert -O qcow2 {{LIBVIRT_IMAGES}}/build/{{item}}-storage.img {{LIBVIRT_IMAGES}}/storageos/{{item}}-storage.qcow2"
+#  when: not storage_disk_check.stat.exists
 
-- name: change the ownership
+- name: "[Prep storage disks - {{item}}] - Change the ownership"
   file:
     state: file
-    path: "{{LIBVIRT_IMAGES}}/ssd/{{item}}-storage.qcow2"
+    path: "{{LIBVIRT_IMAGES}}/storageos/{{item}}-storage.qcow2"
     owner: qemu
     group: qemu
     mode: '0644'
+  when: storage_disk_check.stat.exists is defined and not storage_disk_check.stat.exists
 
-- name: "[Prep storage disks]: Attach storage disk"
-  command: "virsh attach-disk {{item}} {{LIBVIRT_IMAGES}}/ssd/{{item}}-storage.qcow2 --target vdb --cache none --io native --persistent"
-  when: not storage_disk_check.stat.exists
+- name: "[Prep storage disks - {{item}}]: Attach storage disk"
+  command: virsh attach-disk "{{item}}" "{{LIBVIRT_IMAGES}}/storageos/{{item}}-storage.qcow2" --target "vdb" --cache "none" --io "native" --persistent
+  when: storage_disk_check.stat.exists is defined and not storage_disk_check.stat.exists

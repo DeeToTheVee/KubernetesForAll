@@ -1,11 +1,11 @@
 ---
 
-- name: "[libvirtd - cleanup]: Remove meta-data file"
+- name: "[Cleanup - {{item}}]: Remove meta-data file"
   file:
     path: "/tmp/{{item}}"
     state: absent
 
-- name: "[libvirtd - cleanup]: Detach the ISO"
+- name: "[Cleanup - {{item}}]: Detach the ISO"
   command: "virsh change-media {{item}} sda --eject --config --live"
   register: iso_ejected
   ignore_errors: true
@@ -13,22 +13,12 @@
     - '"error" in iso_ejected.stderr'
     - iso_ejected.rc == 1
 
-- name: "[libvirtd - cleanup]: Remove the iso file"
-  file:
-    path: "{{LIBVIRT_IMAGES}}/{{item}}-cidata.iso"
-    state: absent
+- set_fact:
+    CURRENT_HOST: "{{item}}"
 
-- name: "[libvirtd - cleanup]: Remove the original disk files"
+- name: "[Cleanup - {{item}}]: Remove all files"
   file:
-    path: "{{LIBVIRT_IMAGES}}/{{item}}.new.image"
+    path: "{{item}}"
     state: absent
-
-- name: "[libvirtd - cleanup]: Remove the original disk files"
-  file:
-    path: "{{LIBVIRT_IMAGES}}/{{item}}.qcow2"
-    state: absent
-
-- name: "[libvirtd - cleanup]: Remove the original storage disk files"
-  file:
-    path: "{{LIBVIRT_IMAGES}}/ssd/{{item}}-storage.img"
-    state: absent
+  with_fileglob:
+    - "{{LIBVIRT_IMAGES}}/builds/*"
