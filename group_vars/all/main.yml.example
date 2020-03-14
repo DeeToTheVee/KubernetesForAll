@@ -44,8 +44,8 @@ TLS_ST: CITY
 FLUX_GIT_USER: "GIT USERNAME" ## Git Username
 FLUX_GIT_EMAIL: "GIT EMAIL" ## Git email
 FLUX_GIT_REPO: "git@gitlab.com:{{FLUX_GIT_USER}}/flux-test" ## Repo to monitor
-FLUX_GIT_PATHS: ## Everything in here will be deployed
-  - namespace
+FLUX_MONITOR_PATHS: ## Everything in here will be deployed
+  - namespaces
   - workloads
   - services
 
