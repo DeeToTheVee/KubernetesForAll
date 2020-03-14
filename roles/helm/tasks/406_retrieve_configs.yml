@@ -1,0 +1,25 @@
+---
+
+- name: "[Add SSL]: Make helm directory in home"
+  file:
+    path: "/home/{{LOCAL_USER}}/.helm/"
+    state: directory
+    recurse: yes
+    owner: "{{LOCAL_USER}}"
+    group: "{{LOCAL_USER}}"
+    mode: '0755'
+
+- name: "[Add SSL]: Copy SSL CA key for helm"
+  copy:
+    src: "{{PKI_DIR}}/tiller-ca/ca.pem"
+    dest: "/home/{{LOCAL_USER}}/.helm/ca.pem"
+
+- name: "[Add SSL]: Copy SSL user cert for helm"
+  copy:
+    src: "{{PKI_DIR}}/helm-user/helm-user.pem"
+    dest: "/home/{{LOCAL_USER}}/.helm/cert.pem"
+
+- name: "[Add SSL]: Copy SSL user key for helm"
+  copy:
+    src: "{{PKI_DIR}}/helm-user/helm-user-key.pem"
+    dest: "/home/{{LOCAL_USER}}/.helm/key.pem"

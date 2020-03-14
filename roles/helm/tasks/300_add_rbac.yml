@@ -1,0 +1,80 @@
+---
+
+- name: "[Add RBAC]: Configure tiller Service Account in namespaces"
+  k8s:
+    state: present
+    validate_certs: no
+    kubeconfig: "/home/{{LOCAL_USER}}/.kube/config"
+    definition:
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: tiller
+        namespace: kube-system
+#        namespace: "{{item}}"
+#  with_items: "{{TILLER_NAMESPACES}}"
+
+#- name: "[Add RBAC]: Configure tiller Role in namespaces"
+#  k8s:
+#    state: present
+#    validate_certs: no
+#    kubeconfig: "/home/{{LOCAL_USER}}/.kube/config"
+#    definition:
+#      apiVersion: rbac.authorization.k8s.io/v1
+#      kind: Role
+#      metadata:
+#        name: tiller-manager
+#        namespace: "{{item}}"
+#      rules:
+#        - apiGroups: ["", "batch", "extensions", "apps"]
+#          resources: ["*"]
+#          verbs: ["*"]
+#  with_items: "{{TILLER_NAMESPACES}}"
+
+- name: "[Add RBAC]: Configure tiller RoleBinding in namespaces"
+  k8s:
+    state: present
+    validate_certs: no
+    kubeconfig: "/home/{{LOCAL_USER}}/.kube/config"
+    definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRoleBinding
+      metadata:
+        name: tiller
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: cluster-admin
+      subjects:
+        - kind: ServiceAccount
+          name: tiller
+          namespace: kube-system
+#      apiVersion: rbac.authorization.k8s.io/v1
+#      kind: RoleBinding
+#      metadata:
+#        name: tiller-binding
+#        namespace: "{{item}}"
+#      subjects:
+#        - kind: ServiceAccount
+#          name: tiller
+#          namespace: "{{item}}"
+#      roleRef:
+#        kind: Role
+#        name: tiller-manager
+#        apiGroup: rbac.authorization.k8s.io
+#  with_items: "{{TILLER_NAMESPACES}}"
+
+#- name: "[Add RBAC]: Configure tiller ServiceAccount in namespaces"
+#  command: "kubectl create sa tiller -n {{item}} --kubeconfig=/home/{{LOCAL_USER}}/.kube/config"
+#  run_once: true
+#  with_items: "{{TILLER_NAMESPACES}}"
+#
+#- name: "[Add RBAC]: Configure tiller ConfigMap reader Role in namespaces"
+#  command: "['kubectl apply -f', lookup('template', '../templates/tiller-role.yml.j2'), '-n {{item}} --kubeconfig=/home/{{LOCAL_USER}}/.kube/config'] | join(' ')"
+#  run_once: true
+#  with_items: "{{TILLER_NAMESPACES}}"
+#
+#- name: "[Add RBAC]: Configure tiller ConfigMap reader RoleBinding in namespaces"
+#  command: "['kubectl apply -f', lookup('template', '../templates/tiller-rolebinding.yml.j2'), '-n {{item}} --kubeconfig=/home/{{LOCAL_USER}}/.kube/config'] | join(' ')"
+#  run_once: true
+#  with_items: "{{TILLER_NAMESPACES}}"

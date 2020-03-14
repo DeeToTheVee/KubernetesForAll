@@ -1,0 +1,10 @@
+---
+
+- name: "[Add SSL]: Check for the Tiller CA certificates"
+  stat:
+    path: "{{PKI_DIR}}/tiller-ca/ca-key.pem"
+  register: certs_gen
+
+- name: "[Add SSL]: Generate the Tiller CA certificates"
+  shell: "cfssl gencert -initca {{PKI_DIR}}/tiller-ca/ca-csr.json | cfssljson -bare {{PKI_DIR}}/tiller-ca/ca"
+  when: certs_gen.stat.exists is defined and not certs_gen.stat.exists

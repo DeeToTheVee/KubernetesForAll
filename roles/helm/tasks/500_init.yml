@@ -1,0 +1,63 @@
+---
+
+#TODO: The WHEN lazy. Need to check if tiller is running really - needs separation for each tiller namespace to loop over a file.
+#- name: "[Init]: Initialise helm"
+#  command: "/usr/local/bin/helm init \
+#  --tiller-namespace={{item}} \
+#  --tiller-connection-timeout=10 \
+#  --override 'spec.template.spec.containers[0].command'='{/tiller,--storage=secret}' \
+#  --service-account=tiller \
+#  --history-max=200 \
+#  --tiller-tls \
+#  --tiller-tls-cert={{PKI_DIR}}/tiller-host/{{item}}/tiller-host.pem \
+#  --tiller-tls-key={{PKI_DIR}}/tiller-host/{{item}}/tiller-host-key.pem \
+#  --tiller-tls-verify \
+#  --tls-ca-cert={{PKI_DIR}}/tiller-ca/ca.pem"
+#  with_items: "{{TILLER_NAMESPACES}}"
+#  when: certs_gen.stat.exists is defined and not certs_gen.stat.exists
+
+- name: "[Init]: Initialise helm"
+  command: "/usr/local/bin/helm init \
+  --tiller-connection-timeout=10 \
+  --override 'spec.template.spec.containers[0].command'='{/tiller,--storage=secret}' \
+  --service-account=tiller \
+  --history-max=200 \
+  --tiller-tls \
+  --tiller-tls-cert={{PKI_DIR}}/tiller-host/kube-system/tiller-host.pem \
+  --tiller-tls-key={{PKI_DIR}}/tiller-host/kube-system/tiller-host-key.pem \
+  --tiller-tls-verify \
+  --tls-ca-cert={{PKI_DIR}}/tiller-ca/ca.pem"
+  when: certs_gen.stat.exists is defined and not certs_gen.stat.exists
+
+- name: "[Init]: Tiller can take a minute to come up, waiting for 60 seconds..."
+  pause:
+    seconds: 60
+
+#- name: "[Init]: Checking tiller state"
+#  command: "kubectl -n {{item}} get deployment tiller-deploy --kubeconfig=/home/{{LOCAL_USER}}/.kube/config"
+#  register: tiller_deployments
+#  with_items: "{{TILLER_NAMESPACES}}"
+
+- name: "[Init]: Checking tiller state"
+  k8s_info:
+    api_version: v1
+    kind: Deployment
+    kubeconfig: "/home/{{LOCAL_USER}}/.kube/config"
+    name: "tiller-deploy"
+    namespace: "kube-system"
+#    namespace: "{{item}}"
+  register: tiller_deployments
+#  with_items: "{{TILLER_NAMESPACES}}"
+
+- name: "[Init]: Checking helm commands work"
+  command: "helm ls \
+  --tiller-connection-timeout=10 \
+  --tls \
+  --tls-cert=/home/{{LOCAL_USER}}/.helm/cert.pem \
+  --tls-key=/home/{{LOCAL_USER}}/.helm/key.pem \
+  --tls-verify \
+  --tls-ca-cert=/home/{{LOCAL_USER}}/.helm/ca.pem"
+  #  --namespace={{item}}"
+  register: helm_ls
+  ignore_errors: true
+#  with_items: "{{TILLER_NAMESPACES}}"

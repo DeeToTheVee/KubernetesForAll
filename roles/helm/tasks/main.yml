@@ -1,28 +1,29 @@
 ---
 
-- include: 101_fetch_helm.yml
+- include: 100_fetch_helm.yml
   tags:
     - install_helm
     - fetch_helm
 
 # -- IF YOU REALLY WANT TO ENABLE TILLER UNCOMMENT ALL OF THE BELOW, BUT DON'T CAUSE THAT'S SILLY. --
 
-- include: 102_namespaces.yml
+- include: 200_namespaces.yml
   tags:
     - install_helm
     - tiller_namespace
 
-- include: 103_add_rbac.yml
+- include: 300_add_rbac.yml
   tags:
     - install_helm
     - helm_rbac
 
-- include: 104_add_ssl.yml
+- include: 400_add_ssl.yml
   tags:
+    - install_cfssl
     - install_helm
     - helm_ssl
 
-- include: 105_init.yml
+- include: 500_init.yml
   tags:
     - install_helm
     - helm_init

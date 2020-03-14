@@ -1,0 +1,15 @@
+---
+
+- name: "[Add SSL]: Check for the User certificates"
+  stat:
+    path: "{{PKI_DIR}}/helm-user/helm-user.pem"
+  register: certs_gen
+
+- name: "[Add SSL]: Generate the Helm user certificates"
+  shell: "cfssl gencert \
+    -ca={{PKI_DIR}}/tiller-ca/ca.pem \
+    -ca-key={{PKI_DIR}}/tiller-ca/ca-key.pem \
+    -config={{PKI_DIR}}/tiller-ca/tiller-ca-config.json \
+    -profile=tiller \
+    {{PKI_DIR}}/helm-user/helm-user-csr.json | cfssljson -bare {{PKI_DIR}}/helm-user/helm-user"
+  when: certs_gen.stat.exists is defined and not certs_gen.stat.exists

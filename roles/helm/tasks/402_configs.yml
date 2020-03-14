@@ -1,0 +1,45 @@
+---
+
+- name: "[Add SSL]: Make SSL directories"
+  file:
+    path: "{{PKI_DIR}}/{{item}}"
+    state: directory
+    recurse: yes
+    owner: "{{LOCAL_USER}}"
+    group: "{{LOCAL_USER}}"
+    mode: '0755'
+  with_items:
+    - 'tiller-ca'
+    - 'tiller-host'
+    - 'helm-user'
+
+- name: "[Add SSL]: Make SSL Namespace directories"
+  file:
+    path: "{{PKI_DIR}}/tiller-host/kube-system"
+#    path: "{{PKI_DIR}}/tiller-host/{{item}}"
+    state: directory
+    recurse: yes
+    owner: "{{LOCAL_USER}}"
+    group: "{{LOCAL_USER}}"
+    mode: '0755'
+#  with_items: "{{TILLER_NAMESPACES}}"
+
+- name: "[Add SSL]: Copy SSL CA config"
+  copy:
+    src: tiller-ca-config.json
+    dest: "{{PKI_DIR}}/tiller-ca/tiller-ca-config.json"
+
+- name: "[Add SSL]: Generate the Tiller CA csr config file"
+  template:
+    src: tiller-ca-csr.json.j2
+    dest: "{{PKI_DIR}}/tiller-ca/ca-csr.json"
+
+- name: "[Add SSL]: Generate the Tiller host csr config file"
+  template:
+    src: tiller-host-csr.json.j2
+    dest: "{{PKI_DIR}}/tiller-host/tiller-host-csr.json"
+
+- name: "[Add SSL]: Generate the Helm users csr config file"
+  template:
+    src: helm-user-csr.json.j2
+    dest: "{{PKI_DIR}}/helm-user/helm-user-csr.json"

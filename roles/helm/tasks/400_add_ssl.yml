@@ -1,0 +1,14 @@
+---
+
+- include: 401_install_cfssl.yml
+
+- include: 402_configs.yml
+
+- include: 403_generate_ca_certificates.yml
+
+- include: 404_generate_tiller_certificates.yml
+#  with_items: "{{TILLER_NAMESPACES}}"
+
+- include: 404_generate_user_certificates.yml
+
+- include: 406_retrieve_configs.yml
