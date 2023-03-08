@@ -1,5 +1,8 @@
 # Kubernetes via Ansible
 
+## 🔥 (Possible) DEPRECATION NOTICE 🔥
+> So, I've not update this in a while as I've discovered the joys of Terraform aned the glory of programatically creating clusters using Goland/ClusterAPI and other methods. Now, I'm not completely abandoning this but for now there is no garuanteed updates (as you can see it's not been updated in 3+ years). one day I may get around to updating all of this. We'll see. I'm making it public and leaving it here in case anyone wants to play/use/update it.
+
 These playbooks are designed to help people who want a Kubernetes cluster and don't want to rely on the cloud providers to get one.
 The process is still in development and ETCD will soon be separated out from the Master Nodes to allow for better reliability.
 The idea behind it is to give you a close-to-production including GitOps tools (flux), A Service Mesh (Istio), Monitoring (via Prometheus Operator), Helm and more.  
@@ -69,25 +72,25 @@ To generate a new token nodes will use for joining an existing cluster - `adhoc/
 
 ## More Details
 The playbooks can be run per host or as phases. The phases are the default.
-###101 - Configure Ansible 
+### 101 - Configure Ansible 
 This section will install all the required yum/apt packages and python packages that will be required for this project to work. 
-###102 - Configure Builder 
+### 102 - Configure Builder 
 This will configure the node you define as the builder node in the ```hosts.yml``` file. LibVirtd/QEMU etc is configured along with bridge networking.
-###103 - Deploy Instances
+### 103 - Deploy Instances
 Deploys the instances used in the cluster via libvirt.
-###201 - Prepare Nodes
+### 201 - Prepare Nodes
 Install required packages on all nodes, configure firewall, hosts file and more common tasks.
-###202 - Configure loadbalancer
+### 202 - Configure loadbalancer
 Configures the HAProxy load balancers. 
-###204 - Configure Storage -- Only used by NFS -- being deprecated from this project.
+### 204 - Configure Storage -- Only used by NFS -- being deprecated from this project.
 Configures NFS storage. 
-###301 - Initialise 1st Controller
+### 301 - Initialise 1st Controller
 Builds the first controller node for the cluster.
-###302 - Add Additional Controller Nodes 
+### 302 - Add Additional Controller Nodes 
 Adds additional controller nodes for the control plane.
-###303 - Add Workers Nodes 
+### 303 - Add Workers Nodes 
 Add any worker nodes.
-###304 - Setup StorageOS 
+### 304 - Setup StorageOS 
 Configure StorageOS on the cluster.
-###999 - Post Install Tasks 
+### 999 - Post Install Tasks 
 Installs Helm, Istio, Kube-Prometheus (Prometheus Operator) and Flux.
