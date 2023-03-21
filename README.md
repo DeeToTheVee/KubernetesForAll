@@ -1,7 +1,7 @@
 # Kubernetes via Ansible
 
 ## 🔥 (Possible) DEPRECATION NOTICE 🔥
-> So, I've not updated this in a while as I've discovered the joys of Terraform and the glory of programatically creating clusters using Goland/ClusterAPI and other methods. Now, I'm not completely abandoning this but for now there is no garuanteed updates (as you can see it's not been updated in 3+ years). One day I may get around to updating all of this - if I don't I'll archive it in 6-12 months - we'll see. I'm making it public and leaving it here in case anyone wants to play/use/update it/learn form the mistakes it makes. It was something I created back in the day when I was learning Kubernetes and attempting to automate it.
+> So, I've not updated this in a while as I've discovered the joys of Terraform and the glory of programatically creating clusters using Golang/ClusterAPI and other methods. Now, I'm not completely abandoning this but for now there is no garuanteed updates (as you can see it's not been updated in 3+ years). One day I may get around to updating all of this - if I don't I'll archive it in 6-12 months - we'll see. I'm making it public and leaving it here in case anyone wants to play/use/update it/learn form the mistakes it makes. It was something I created back in the day when I was learning Kubernetes and attempting to automate it.
 
 These playbooks are designed to help people who want a Kubernetes cluster and don't want to rely on the cloud providers to get one.
 The process is still in development and ETCD will soon be separated out from the Master Nodes to allow for better reliability.
